@@ -1,0 +1,27 @@
+version: '3.1'
+services:
+  postgres:
+    image: postgres
+    restart: always
+    environment: 
+        - DATABASE_HOST=127.0.0.1
+        - POSTGRES_USER=user  
+        - POSTGRES_PASSWORD=test
+        - POSTGRES_DB=db
+    volumes:
+      - database-data:/var/lib/postgresql/data/ 
+    ports: 
+        - "5432:5432" 
+
+  pgadmin-compose:
+    image: dpage/pgadmin4
+    environment: 
+        PGADMIN_DEFAULT_EMAIL: "test@gmail.com"
+        PGADMIN_DEFAULT_PASSWORD: "test"
+    ports: 
+        - "8080:80"
+    depends_on: 
+        - postgres 
+
+volumes:
+  database-data: # named volumes can be managed easier using docker-compose
