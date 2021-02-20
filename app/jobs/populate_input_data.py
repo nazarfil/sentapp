@@ -1,5 +1,5 @@
 import csv
-from .models import db, InputData
+from app.models import db, InputData
 from datetime import date
 
 

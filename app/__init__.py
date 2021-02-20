@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_migrate import Migrate
 from .models import db
-from .populate_db import populate_db
+from app.jobs.populate_input_data import populate_db
 from .routes import bp
 
 migrate = Migrate()
