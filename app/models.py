@@ -1,4 +1,3 @@
-
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -11,7 +10,7 @@ class InputData(db.Model):
     source=db.Column(db.String(50))
     date=db.Column(db.Date)
     ticker=db.Column(db.String(32))
-    alt_name=db.Column('alt_name', db.String(100))
+    order=db.Column(db.Integer)
 
     def __init__(self, **kwargs):
         super(InputData, self).__init__(**kwargs)
