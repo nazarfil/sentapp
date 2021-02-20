@@ -1,9 +1,10 @@
 from flask import Flask
 from flask_migrate import Migrate
 from .models import db
+from .populate_db import populate_db
+from .routes import bp
 
 migrate = Migrate()
-from .routes import bp
 
 
 def init_app():
@@ -21,6 +22,6 @@ def init_app():
     db.init_app(app)
     migrate.init_app(app, db)
     with app.app_context():
-        #db.create_all()  # Create sql tables for our data models
         app.register_blueprint(bp)
+        #populate_db()
         return app
