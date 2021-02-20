@@ -8,3 +8,5 @@ def index():
     tweet_fields = "tweet.fields=text,author_id,created_at"
     json_response = TwitterScraper.search_twitter_in_range(query=query, tweet_fields=tweet_fields)
     return json_response
+
+

@@ -9,10 +9,10 @@ class TwitterScraper:
     #url2 = "https://api.twitter.com/1.1/search/tweets.json?q={}&{}&&since{}&until={}".format(query, tweet_fields,since, until)
 
     # define search twitter function
-    def search_twitter_in_range(self, query, tweet_fields, since, until, bearer_token=BT):
+    def search_twitter_in_range(query, tweet_fields, since, until, bearer_token=BT):
         headers = {"Authorization": "Bearer {}".format(bearer_token)}
 
-        url3 = "https://api.twitter.com/2/tweets/search/recent?query={}&start_time={}&end_time={}&{}"
+        url3 = "https://api.twitter.com/2/tweets/search/recent?query={}&start_time={}&end_time={}&{}".format(query, since, until, tweet_fields)
         print("Example URI: ", url3)
         response = requests.request("GET", url3, headers=headers)
         print(response.status_code)

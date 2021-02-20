@@ -2,7 +2,9 @@ from flask import Flask
 from flask_migrate import Migrate
 from .models import db
 from app.jobs.populate_input_data import populate_db
+from app.jobs.twitter_scrape_job import scrape_twitter_from_csv
 from .routes import bp
+
 
 migrate = Migrate()
 
@@ -24,4 +26,5 @@ def init_app():
     with app.app_context():
         app.register_blueprint(bp)
         #populate_db()
+        scrape_twitter_from_csv()
         return app
