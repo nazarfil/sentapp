@@ -5,7 +5,7 @@ from datetime import datetime
 
 def get_tweet_for_input(input_name, input_date):
     input_data = InputData.query.filter_by(name=input_name).first()
-    print("INPUT DATA IS ",input_data)
+    print("INPUT DATA IS ", input_data)
     query = "{} or {}".format(input_data.name, input_data.ticker)
     tweet_fields = "tweet.fields=text,author_id,created_at"
     start, end = get_datetime_from_string(input_date)
@@ -20,3 +20,11 @@ def get_datetime_from_string(date):
     date_obj_start = datetime.strptime("{}T{}".format(date, start), input_format)
     date_obj_end = datetime.strptime("{}T{}".format(date, end), input_format)
     return date_obj_start.strftime(out_f).replace('UTC', 'Z'), date_obj_end.strftime(out_f).replace('UTC', 'Z')
+
+
+def check_if_date_in_range(date, days_range):
+    input_format = "%Y-%m-%d"
+    date_obj = datetime.strptime(date, input_format)
+    today = datetime.today()
+    diff = today - date_obj
+    return diff.days < days_range
