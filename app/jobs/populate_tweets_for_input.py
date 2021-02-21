@@ -1,15 +1,15 @@
 from app.models import db, InputData, ScrapedData
-from app.scraper.twitter_client import TwitterScraper
+from app.scraper.twitter_service import search_twitter
 from datetime import datetime
 
 
-def get_tweet_for_input(input_name, input_date):
-    input_data = InputData.query.filter_by(name=input_name).first()
-    print("INPUT DATA IS ", input_data)
-    query = "{} or {}".format(input_data.name, input_data.ticker)
-    tweet_fields = "tweet.fields=text,author_id,created_at"
+def get_tweet_for_input(input_data, input_date, next_token='none'):
+    query = "{} or {} or {} or {}".format(input_data.name, input_data.ticker, input_data.name.lower(), input_data.ticker.lower())
     start, end = get_datetime_from_string(input_date)
-    return TwitterScraper.search_twitter_in_range(query=query, tweet_fields=tweet_fields, since=start, until=end)
+    if next_token == 'none':
+        return search_twitter(query=query, start_time=start, end_time=end)
+    else:
+        return search_twitter(query=query, start_time=start, end_time=end, next_token=next_token)
 
 
 def get_datetime_from_string(date):
