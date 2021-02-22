@@ -21,7 +21,10 @@ services:
     ports: 
         - "8080:80"
     depends_on: 
-        - postgres 
+        - postgres
+
+  redis:
+    image: redis:6-alpine
 
 volumes:
   database-data: # named volumes can be managed easier using docker-compose

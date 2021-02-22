@@ -1,5 +1,5 @@
 import csv
-from .populate_tweets_for_input import get_tweet_for_input
+from .search_tweets_for_input import get_tweet_for_input
 from app.models import ScrapedData, db, InputData
 import re
 

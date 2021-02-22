@@ -1,4 +1,4 @@
-from app.jobs.populate_tweets_for_input import *
+from app.jobs.search_tweets_for_input import *
 import unittest
 
 class TestTweeterApiQuery(unittest.TestCase):
