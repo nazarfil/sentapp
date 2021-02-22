@@ -37,7 +37,7 @@ def init_app():
         celery.conf.update(app.config)
         #populate_db()
         #scrape_twitter_from_csv()
-        calculate_sentiment()
+        #calculate_sentiment()
         return app
 
 
