@@ -50,7 +50,7 @@ class SentimentScore(db.Model):
 
 
 class SentimentMeanScore(db.Model):
-    __tablename__ = 'sentiment__mean_score'
+    __tablename__ = 'sentiment_mean_score'
     id = db.Column(db.Integer, primary_key=True)
     input_data = db.Column(db.Integer, db.ForeignKey('input_data.id'))
     sentiment = db.Column(db.String(32))

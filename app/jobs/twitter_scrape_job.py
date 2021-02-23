@@ -1,7 +1,7 @@
 import csv
-from .search_tweets_for_input import get_tweet_for_input
+from app.scraper.search_tweets_for_input import get_tweet_for_input
 from app.models import ScrapedData, db, InputData
-import re
+
 
 def scrape_twitter_from_csv():
     csv_url = "app/jobs/populate.csv"
@@ -29,7 +29,7 @@ def create_scraped_data_record(tweets, input_data):
     for tweet in tweets["data"]:
         text_data = tweet["text"]
         text_data = " ".join(filter(lambda x: x[0] != '@', text_data.split()))
-        if len(text_data)>260:
+        if len(text_data) > 260:
             text_data = text_data[0:260]
         scraped_data = ScrapedData(text=text_data,
                                    date=tweet["created_at"],

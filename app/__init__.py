@@ -1,7 +1,8 @@
-
 from flask import Flask
 from flask_migrate import Migrate
-from .models import db
+
+from .jobs.calculate_mean_socre import mean_score_from_csv
+from .models import db, SentimentMeanScore
 from app.jobs.populate_input_data import populate_db
 from app.jobs.twitter_scrape_job import scrape_twitter_from_csv
 from app.jobs.populate_sentiment_for_input import calculate_sentiment
@@ -26,8 +27,6 @@ def init_app():
     app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
     app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
 
-
-
     db.init_app(app)
     migrate.init_app(app, db)
     with app.app_context():
@@ -35,9 +34,9 @@ def init_app():
         #
         celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
         celery.conf.update(app.config)
-        #populate_db()
-        #scrape_twitter_from_csv()
-        #calculate_sentiment()
+        # populate_db()
+        # scrape_twitter_from_csv()
+        # calculate_sentiment()
+        mean_score_from_csv()
+        #db.create_all()
         return app
-
-

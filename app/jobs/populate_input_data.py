@@ -2,7 +2,6 @@ import csv
 from app.models import db, InputData
 from datetime import date
 
-
 def populate_db():
     csv_url = "./app/utility/cryptocurrencies_2021-02-20.csv"
     with open(csv_url, newline='') as csv_file:
