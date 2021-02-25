@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_migrate import Migrate
 
-from .jobs.calculate_mean_socre import mean_score_from_csv
+from .jobs.calculate_mean_socre import mean_score_from_csv, sum_score_from_csv
 from .models import db, SentimentMeanScore
 from app.jobs.populate_input_data import populate_db
 from app.jobs.twitter_scrape_job import scrape_twitter_from_csv
@@ -37,6 +37,7 @@ def init_app():
         # populate_db()
         # scrape_twitter_from_csv()
         # calculate_sentiment()
-        mean_score_from_csv()
-        #db.create_all()
+        # mean_score_from_csv()
+        # db.create_all()
+        # sum_score_from_csv()
         return app

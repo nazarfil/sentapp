@@ -19,6 +19,10 @@ class InputData(db.Model):
     def __repr__(self):
         return '<InputData {}>'.format(self.name)
 
+    @property
+    def serialized(self):
+        """Return object data in serializeable format"""
+        return dict(id=self.id, name=self.name, date=self.date, source=self.source, ticker=self.ticker, order=self.order)
 
 class ScrapedData(db.Model):
     __tablename__ = 'scraped_data'
@@ -35,6 +39,11 @@ class ScrapedData(db.Model):
     def __repr__(self):
         return '<ScrapedData {}>'.format(self.text)
 
+    @property
+    def serialized(self):
+        """Return object data in serializeable format"""
+        return dict(id=self.id, text=self.text, date=self.date, source=self.source, input_data=self.input_data)
+
 
 class SentimentScore(db.Model):
     __tablename__ = 'sentiment_score'
@@ -48,6 +57,12 @@ class SentimentScore(db.Model):
     date = db.Column(db.Date)
     source = db.Column(db.String(60))
 
+    @property
+    def serialized(self):
+        """Return object data in serializeable format"""
+        return dict(id=self.id, input_data=self.input_data, sentiment=self.sentiment, positive=self.positive,
+                    negative=self.negative, neutral=self.negative, mixed=self.negative, date=self.date,
+                    source=self.source)
 
 class SentimentMeanScore(db.Model):
     __tablename__ = 'sentiment_mean_score'
@@ -67,3 +82,9 @@ class SentimentMeanScore(db.Model):
 
     def __repr__(self):
         return '<SentimentMeanScore {}>'.format(self.sentiment)
+
+    @property
+    def serialized(self):
+        return dict(id=self.id, input_data=self.input_data, sentiment=self.sentiment, positive=self.positive,
+                    negative=self.negative, neutral=self.negative, mixed=self.negative, date=self.date,
+                    source=self.source)

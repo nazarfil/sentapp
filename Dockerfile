@@ -9,12 +9,12 @@ EXPOSE 5000
 # Sets the working directory for following COPY and CMD instructions
 # Notice we haven’t created a directory by this name - this instruction 
 # creates a directory with this name if it doesn’t exist
-WORKDIR /sentiment
+WORKDIR /sentapp
 
 # Install any needed packages specified in requirements.txt
-COPY requirements.txt /sentiment
-RUN pip install -r requirements.txt
+COPY . /sentapp
+RUN pip3 install -r requirements.txt
 
 # Run app.py when the container launches
-COPY app.py /sentiment
-CMD python app.py
+COPY wsgi.py /sentapp
+CMD python wsgi.py
