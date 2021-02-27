@@ -1,7 +1,7 @@
 from app.models import db, InputData, ScrapedData
 from app.scraper.twitter_service import search_twitter
 from datetime import datetime, timedelta
-
+from app.utility.formats import *
 
 def get_tweet_for_input(input_data, input_date, next_token='none'):
     query = "{} or {} or {} or {} and -is:retweet".format(input_data.name, input_data.ticker, input_data.name.lower(), input_data.ticker.lower())
@@ -16,13 +16,13 @@ def get_tweet_for_input(input_data, input_date, next_token='none'):
 def get_datetime_from_string(date):
     start = "00:00:01Z"
     end = "23:59:59Z"
-    today = datetime.today().date().strftime("%Y-%m-%d")
+    today = datetime.today().date().strftime(foramt_Y_M_D)
     if today == date:
-        end = (datetime.now()- timedelta(minutes=80)).strftime("%H:%M:%S") + "Z"
+        end = (datetime.now()- timedelta(minutes=80)).strftime(format_H_M_S) + "Z"
         print(end)
 
-    input_format = "%Y-%m-%dT%H:%M:%S%z"
-    out_f = "%Y-%m-%dT%H:%M:%S%Z"
+    input_format = format_T_H_M_S_Z
+    out_f = format_T_H_M_S_ZZ
     date_obj_start = datetime.strptime("{}T{}".format(date, start), input_format)
     date_obj_end = datetime.strptime("{}T{}".format(date, end), input_format)
 
@@ -30,8 +30,7 @@ def get_datetime_from_string(date):
 
 
 def check_if_date_in_range(date, days_range):
-    input_format = "%Y-%m-%d"
-    date_obj = datetime.strptime(date, input_format)
+    date_obj = datetime.strptime(date, foramt_Y_M_D)
     today = datetime.today()
     diff = today - date_obj
     return diff.days < days_range

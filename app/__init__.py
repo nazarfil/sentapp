@@ -1,8 +1,12 @@
+from sqlite3 import ProgrammingError
+
 from flask import Flask
 from flask_migrate import Migrate
 
+from sqlalchemy_utils import create_view
+
 from .jobs.calculate_mean_socre import mean_score_from_csv, hype_score_from_csv
-from .models import db, SentimentMeanScore
+from .models import db, SentimentMeanScore, InputData, SentimentHypeScore
 from app.jobs.populate_input_data import populate_db, update_populate_db
 from app.jobs.twitter_scrape_job import scrape_twitter_from_csv
 from app.jobs.populate_sentiment_for_input import calculate_sentiment
@@ -10,6 +14,18 @@ from .routes import bp
 from celery import Celery
 
 migrate = Migrate()
+
+stmt = db.select([
+    InputData.id.label('input_data_id'),
+    InputData.name,
+    InputData.ticker,
+    InputData.market_cap,
+    InputData.price,
+    SentimentHypeScore.relative_hype,
+    SentimentHypeScore.absolute_hype,
+    SentimentHypeScore.delta_tweets,
+    SentimentHypeScore.date
+]).select_from(InputData.__table__.outerjoin(SentimentHypeScore, SentimentHypeScore.input_data == InputData.id))
 
 
 def init_app():
@@ -39,7 +55,12 @@ def init_app():
         #calculate_sentiment()
         #mean_score_from_csv()
         #update_populate_db()
-        db.create_all()
+
+        try:
+            create_view('table_view', stmt, db.metadata)
+        except ProgrammingError:
+            print("View already exists")
+        #db.create_all()
         #hype_score_from_csv()
         #sum_score_from_csv()
         return app

@@ -1,8 +1,14 @@
+from datetime import datetime
+
 from flask import (Blueprint)
 from flask import jsonify
+
+from app.utility.formats import foramt_Y_M_D
+
 bp = Blueprint('/api', __name__, url_prefix='/api')
-from app.models import db, InputData, SentimentScore, SentimentMeanScore
+from app.models import db, InputData, SentimentScore, SentimentMeanScore, TableView
 from flask import request
+
 
 @bp.route('calculate_score', methods=['POST'])
 def calculate_score():
@@ -23,18 +29,19 @@ def get_coins():
 def create_result(input_data, score):
     return {
         "name": input_data.name,
-        "score":score.sentiment,
-        "date":score.date
-     }
+        "score": score.sentiment,
+        "date": score.date
+    }
 
 
 @bp.route('scores/<name>', methods=['GET'])
 def get_scores(name):
-    sentiment_scores = db.session.query(InputData, SentimentScore).join(SentimentScore).filter(InputData.name == name).all()
-    #sentiment_scores = SentimentScore.query.inn(InputData, SentimentScore.input_data == InputData.id).paginate(page, offset, False).items
+    sentiment_scores = db.session.query(InputData, SentimentScore).join(SentimentScore).filter(
+        InputData.name == name).all()
+    # sentiment_scores = SentimentScore.query.inn(InputData, SentimentScore.input_data == InputData.id).paginate(page, offset, False).items
     print(sentiment_scores)
     return jsonify({
-        'data': [ create_result(input_data, score) for (input_data, score)  in sentiment_scores]
+        'data': [create_result(input_data, score) for (input_data, score) in sentiment_scores]
     })
 
 
@@ -48,10 +55,19 @@ def create_mean_result(input_data, mean_score):
 
 @bp.route('mean_scores/<name>', methods=['GET'])
 def get_mean_scores(name):
-    sentiment_scores = db.session.query(InputData, SentimentMeanScore).join(SentimentMeanScore).filter(InputData.name == name).all()
+    sentiment_scores = db.session.query(InputData, SentimentMeanScore).join(SentimentMeanScore).filter(
+        InputData.name == name).all()
     # sentiment_scores = SentimentScore.query.inn(InputData, SentimentScore.input_data == InputData.id).paginate(page, offset, False).items
     print(sentiment_scores)
     return jsonify({
         'data': [create_mean_result(input_data, mean_score) for (input_data, mean_score) in sentiment_scores]
     })
 
+
+@bp.route('table', methods=['GET'])
+def get_hype():
+    date_today = datetime.now().date()
+    hypes = TableView.query.filter(TableView.relative_hype != None, TableView.date==date_today).all()
+    return jsonify({
+        'data': [hype.serialized for hype in hypes]
+    })
