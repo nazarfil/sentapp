@@ -1,12 +1,14 @@
-from app.models import SentimentMeanScore, SentimentScore, db, InputData
+from app.models import SentimentMeanScore, SentimentScore, db, InputData, SentimentHypeScore
 from sqlalchemy.sql import func
 from operator import itemgetter
-import csv
+import csv, datetime
 from operator import add
 
+
 def calculate_mean_score(date, in_name):
+    print("CALCULATING MEAN SCORE")
     input_data = InputData.query.filter_by(name=in_name).first()
-    avg_positive = (db.session.query(func.avg(SentimentScore.positive).label('average'))
+    avg_positive = (db.session.query(func.avg(SentimentScore.positive).label('positive'))
                     .filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first(),
                     "POSITIVE")
     avg_negative = (db.session.query(func.avg(SentimentScore.negative).label('negative'))
@@ -40,21 +42,39 @@ def mean_score_from_csv():
             db.session.commit()
 
 
-def calculate_sum_score(date, in_name):
+def calculate_hype_score(date, in_name):
+    print("CALCULATING HYPE SCORE")
+    yesterday = datetime.datetime.strptime(date, '%Y-%m-%d') - datetime.timedelta(days=1)
     input_data = InputData.query.filter_by(name=in_name).first()
-    avg_positive = db.session.query(func.sum(SentimentScore.positive).label('positive')).filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first()
-    avg_negative = db.session.query(func.sum(SentimentScore.negative).label('negative')).filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first()
-    avg_neutral = db.session.query(func.sum(SentimentScore.neutral).label('neutral')).filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first()
-    avg_mixed = db.session.query(func.sum(SentimentScore.mixed).label('mixed')).filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first()
-    return map(float, [avg_positive[0], avg_mixed[0], avg_neutral[0], avg_negative[0]])
+    sum_positive = (db.session.query(func.sum(SentimentScore.positive).label('positive'))
+                    .filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first(),
+                    "POSITIVE")
+    sum_negative = (db.session.query(func.sum(SentimentScore.negative).label('negative'))
+                    .filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first(),
+                    "NEGATIVE")
+    sum_neutral = (db.session.query(func.sum(SentimentScore.neutral).label('neutral'))
+                   .filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first(), "NEUTRAL")
+    sum_mixed = (db.session.query(func.sum(SentimentScore.mixed).label('mixed'))
+                 .filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first(), "MIXED")
+    count_today = SentimentScore.query.filter_by(input_data= input_data.id, date=date).count()
+    count_yesterday = SentimentScore.query.filter_by(input_data= input_data.id, date=yesterday.strftime('%Y-%m-%d')).count()
+    delta = count_today - count_yesterday
+    absolute_hype = sum_positive[0].positive + sum_mixed[0].mixed - sum_negative[0].negative
+    relative_hype = (sum_positive[0].positive + sum_mixed[0].mixed) / sum_negative[0].negative
+    return SentimentHypeScore(
+        input_data=input_data.id,
+        absolute_hype=absolute_hype,
+        relative_hype=relative_hype,
+        delta_tweets=delta,
+        date=date
+    )
 
 
-def sum_score_from_csv():
+def hype_score_from_csv():
     csv_url = "app/jobs/populate.csv"
-    sum_overall = [0.0, 0.0, 0.0, 0.0]
     with open(csv_url, newline='') as csv_file:
         reader = csv.DictReader(csv_file, delimiter=',')
         for row in reader:
-            list_sum = calculate_sum_score(date=row["date"], in_name=row["name"])
-            sum_overall = [a + b for a, b in zip(sum_overall, list_sum)]
-        print(sum_overall)
+            hype_record = calculate_hype_score(date=row["date"], in_name=row["name"])
+            db.session.add(hype_record)
+            db.session.commit()

@@ -21,7 +21,8 @@ def assign_score(input_data, date, sentiment, source):
 
 
 def calculate_sentiment():
-    input_data = InputData.query.filter_by(name="Bitcoin").first()
+    print("CALCULATING SENTIMENTS")
+    input_data = InputData.query.filter_by(name="Cardano").first()
     data_remains = True
     client = AwsClient()
     while data_remains:

@@ -19,14 +19,14 @@ def extract(url):
         if response.status_code == 200:
             with open("cryptocurrencies_{}.csv".format(str(datetime.date.today())), "w+") as f:
                 print("Printing to file")
-                fieldnames = ['id', 'name', 'ticker']
+                fieldnames = ['id', 'name', 'ticker', 'price', 'market_cap']
                 writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=',')
                 writer.writeheader()
 
                 soup = BeautifulSoup(response.content, features='html.parser')
                 sel = Selector(text=soup.prettify())
                 cryptos = sel.xpath("//tr").extract()
-                cryptos2 = cryptos[3:50]
+                cryptos2 = cryptos[3:53]
                 for crypto in cryptos2:
                     soup = BeautifulSoup(crypto, features='html.parser')
                     sel = Selector(text=soup.prettify())
@@ -34,8 +34,10 @@ def extract(url):
                     id = sel.xpath("//td[1]/div/text()").extract_first()
                     nom = sel.xpath("//td[2]/div/a/text()").extract_first()
                     symbole = sel.xpath("//td[3]/div/text()").extract_first()
+                    price = sel.xpath("//td[4]/p/text()").extract_first()
+                    market_cap = sel.xpath("//td[5]/div/a/text()").extract_first()
                     clean_values = []
-                    values = [id, nom, symbole]
+                    values = [id, nom, symbole, price, market_cap]
                     for value in values:
                         if value:
                             value = value.strip().replace('\n', '')

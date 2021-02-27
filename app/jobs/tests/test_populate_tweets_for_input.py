@@ -9,6 +9,13 @@ class TestTweeterApiQuery(unittest.TestCase):
         self.assertEqual("2021-02-19T00:00:01Z", result_start)
         self.assertEqual("2021-02-19T23:59:59Z", result_end)
 
+    def test_date_formatter_wrong(self):
+        input_date = '2021-02-24'
+        result_start, result_end = get_datetime_from_string(input_date)
+        print(result_start, result_end)
+        self.assertEqual("2021-02-24T00:00:01Z", result_start)
+        self.assertEqual("2021-02-24T23:59:59Z", result_end)
+
     def test_day_not_in_range(self):
         date_in =  "2020-12-20"
         in_range = check_if_date_in_range(date_in, 7)
