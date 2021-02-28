@@ -4,7 +4,6 @@ from flask import Flask
 from flask_migrate import Migrate
 
 from sqlalchemy_utils import create_view
-
 from .jobs.calculate_mean_socre import mean_score_from_csv, hype_score_from_csv
 from .models import db, SentimentMeanScore, InputData, SentimentHypeScore
 from app.jobs.populate_input_data import populate_db, update_populate_db
@@ -43,14 +42,15 @@ def init_app():
         #calculate_sentiment()
         #mean_score_from_csv()
         #update_populate_db()
-
+        # hype_score_from_csv()
+        # sum_score_from_csv()
         try:
             statement = db_service.create_view_statement(db)
             create_view('table_view_max', statement, db.metadata)
         except ProgrammingError:
             print("View already exists")
-
-        db.create_all()
-        #hype_score_from_csv()
-        #sum_score_from_csv()
+        try :
+            db.create_all()
+        except:
+            print("Tables already created")
         return app

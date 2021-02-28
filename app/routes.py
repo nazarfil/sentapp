@@ -52,15 +52,11 @@ def create_mean_result(input_data, mean_score):
 @bp.route('mean_scores/<name>', methods=['GET'])
 def get_mean_scores(name):
     sentiment_scores = db_service.query_sentiment_mean_score_for_coin(name)
-    return jsonify({
-        'data': [create_mean_result(input_data, mean_score) for (input_data, mean_score) in sentiment_scores]
-    })
+    return jsonify(
+        {'data': [create_mean_result(input_data, mean_score) for (input_data, mean_score) in sentiment_scores]})
 
 
 @bp.route('table', methods=['GET'])
 def get_hype():
-    date_today = datetime.now().date()
     hypes = db_service.query_table_view()
-    return jsonify({
-        'data': [hype.serialized for hype in hypes]
-    })
+    return jsonify({'data': [hype.serialized for hype in hypes]})
