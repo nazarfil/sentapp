@@ -12,21 +12,9 @@ from app.jobs.twitter_scrape_job import scrape_twitter_from_csv
 from app.jobs.populate_sentiment_for_input import calculate_sentiment
 from .routes import bp
 from celery import Celery
+import app.services.database_service as db_service
 
 migrate = Migrate()
-
-stmt = db.select([
-    InputData.id.label('input_data_id'),
-    InputData.name,
-    InputData.ticker,
-    InputData.market_cap,
-    InputData.price,
-    SentimentHypeScore.relative_hype,
-    SentimentHypeScore.absolute_hype,
-    SentimentHypeScore.delta_tweets,
-    SentimentHypeScore.date
-]).select_from(InputData.__table__.outerjoin(SentimentHypeScore, SentimentHypeScore.input_data == InputData.id))
-
 
 def init_app():
     """Construct the core application."""
@@ -57,10 +45,12 @@ def init_app():
         #update_populate_db()
 
         try:
-            create_view('table_view', stmt, db.metadata)
+            statement = db_service.create_view_statement(db)
+            create_view('table_view_max', statement, db.metadata)
         except ProgrammingError:
             print("View already exists")
-        #db.create_all()
+
+        db.create_all()
         #hype_score_from_csv()
         #sum_score_from_csv()
         return app

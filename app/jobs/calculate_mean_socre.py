@@ -2,7 +2,6 @@ from app.models import SentimentMeanScore, SentimentScore, db, InputData, Sentim
 from sqlalchemy.sql import func
 from operator import itemgetter
 import csv, datetime
-from operator import add
 
 
 def calculate_mean_score(date, in_name):
