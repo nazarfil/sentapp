@@ -4,6 +4,11 @@ from flask import (Blueprint)
 from flask import jsonify
 
 import app.services.database_service as db_service
+from app import populate_db_from_csv, hype_score_from_csv
+from app.jobs.populate_input_data import populate_db_api
+from app.jobs.twitter_scrape_job import scrape_twitter_from_db, scrape_twitter_from_db_coin
+from app.utility.coinmarketcap_scraper import extract_to_mem
+from app.utility.formats import foramt_Y_M_D
 
 bp = Blueprint('/api', __name__, url_prefix='/api')
 from flask import request
@@ -60,3 +65,35 @@ def get_mean_scores(name):
 def get_hype():
     hypes = db_service.query_table_view()
     return jsonify({'data': [hype.serialized for hype in hypes]})
+
+
+@bp.route('refresh_coins', methods=["GET"])
+def refresh_coins():
+    # Extracting coins from CoinMarketCap
+    try:
+        print("Refreshing coins data")
+        coins = extract_to_mem()
+        for coin in coins:
+            populate_db_api(coin)
+    except:
+        print("Unable to refresh coins data")
+    return jsonify({'status': "Request was processed"})
+
+
+@bp.route('scrape_coins', methods=["POST"])
+def scrape_all_coins():
+    today = datetime.today().date().strftime(foramt_Y_M_D)
+    date = request.args.get('date', default=today, type=str)
+    scrape_twitter_from_db(date)
+
+
+@bp.route('scrape_coins/<name>', methods=["POST"])
+def scrape_coin(name):
+    today = datetime.today().date().strftime(foramt_Y_M_D)
+    date = request.args.get('date', default=today, type=str)
+    scrape_twitter_from_db_coin(name, date)
+
+
+@bp.route('calculate_mean_score')
+def calculate_mean_score():
+    hype_score_from_csv()

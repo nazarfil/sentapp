@@ -55,8 +55,9 @@ def calculate_hype_score(date, in_name):
                    .filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first(), "NEUTRAL")
     sum_mixed = (db.session.query(func.sum(SentimentScore.mixed).label('mixed'))
                  .filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first(), "MIXED")
-    count_today = SentimentScore.query.filter_by(input_data= input_data.id, date=date).count()
-    count_yesterday = SentimentScore.query.filter_by(input_data= input_data.id, date=yesterday.strftime('%Y-%m-%d')).count()
+    count_today = SentimentScore.query.filter_by(input_data=input_data.id, date=date).count()
+    count_yesterday = SentimentScore.query.filter_by(input_data=input_data.id,
+                                                     date=yesterday.strftime('%Y-%m-%d')).count()
     delta = count_today - count_yesterday
     absolute_hype = sum_positive[0].positive + sum_mixed[0].mixed - sum_negative[0].negative
     relative_hype = (sum_positive[0].positive + sum_mixed[0].mixed) / sum_negative[0].negative
@@ -77,3 +78,9 @@ def hype_score_from_csv():
             hype_record = calculate_hype_score(date=row["date"], in_name=row["name"])
             db.session.add(hype_record)
             db.session.commit()
+
+
+def hype_score_for_coin(coin, date):
+    hype_record = calculate_hype_score(date=date, in_name=coin.name)
+    db.session.add(hype_record)
+    db.session.commit()

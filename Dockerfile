@@ -12,7 +12,9 @@ EXPOSE 5000
 WORKDIR /sentapp
 
 # Install any needed packages specified in requirements.txt
-COPY . /sentapp
+COPY app /sentapp/app
+COPY requirements.txt /sentapp
+COPY wsgi.py /sentapp
 RUN pip3 install -r requirements.txt
 
 # Run app.py when the container launches

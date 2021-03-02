@@ -1,6 +1,7 @@
 from app.algos.sentiment_aws import AwsClient
 from app.models import db, InputData, ScrapedData, SentimentScore
 import app.services.database_service as db_service
+
 BATCH_SIZE = 100
 
 
@@ -36,3 +37,8 @@ def calculate_sentiment():
             db.session.delete(data_record)
             # commit (or flush)
             db.session.commit()
+
+
+def calculate_sentiment_for_tweet(coin, tweet, client=AwsClient()):
+    sentiment = client.get_sentiment(text=tweet.text)
+    assign_score(coin, tweet.date, sentiment, client.name)
