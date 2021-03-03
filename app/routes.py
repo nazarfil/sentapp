@@ -5,6 +5,7 @@ from flask import jsonify
 
 import app.services.database_service as db_service
 from app import populate_db_from_csv, hype_score_from_csv
+from app.jobs.calculate_mean_socre import hype_score_for_coin
 from app.jobs.populate_input_data import populate_db_api
 from app.jobs.twitter_scrape_job import scrape_twitter_from_db, scrape_twitter_from_db_coin
 from app.utility.coinmarketcap_scraper import extract_to_mem
@@ -85,6 +86,7 @@ def scrape_all_coins():
     today = datetime.today().date().strftime(foramt_Y_M_D)
     date = request.args.get('date', default=today, type=str)
     scrape_twitter_from_db(date)
+    return jsonify({'status': "Request was processed"})
 
 
 @bp.route('scrape_coins/<name>', methods=["POST"])
@@ -92,8 +94,12 @@ def scrape_coin(name):
     today = datetime.today().date().strftime(foramt_Y_M_D)
     date = request.args.get('date', default=today, type=str)
     scrape_twitter_from_db_coin(name, date)
+    return jsonify({'status': "Request was processed"})
 
 
-@bp.route('calculate_mean_score')
-def calculate_mean_score():
-    hype_score_from_csv()
+@bp.route('calculate_hype_score/<name>', methods=["POST"])
+def calculate_mean_score(name):
+    today = datetime.today().date().strftime(foramt_Y_M_D)
+    date = request.args.get('date', default=today, type=str)
+    hype_score_for_coin(name, date)
+    return jsonify({'status': "Request was processed"})

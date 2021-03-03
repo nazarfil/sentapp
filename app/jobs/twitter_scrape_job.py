@@ -57,6 +57,7 @@ def scrape_twitter_from_db(date):
         calculate_score_for_tweet(coin, date)
 
 
+
 def scrape_twitter_from_db_coin(name, date):
     coin = InputData.query.filter_by(name=name).first()
     if coin is None:
@@ -65,19 +66,17 @@ def scrape_twitter_from_db_coin(name, date):
     calculate_score_for_tweet(coin, date)
 
 
-def calculate_score_for_tweet(coin, date, token="0"):
+def calculate_score_for_tweet(coin, date, token="none"):
     print("Calculating score for ", coin.name)
-    if token == "0":
-        tweets = get_tweet_for_input(coin, input_date=date)
-    else:
-        tweets = get_tweet_for_input(coin, input_date=date, next_token=token)
-    tweets_records = create_scraped_data_records(tweets, coin)
-    for tr in tweets_records:
-        calculate_sentiment_for_tweet(coin, tr)
-    there_is_next_token = "next_token" in tweets["meta"]
-    if there_is_next_token:
-        token = tweets["meta"]["next_token"]
-        calculate_score_for_tweet(coin, date, token)
+    tweets = get_tweet_for_input(coin, input_date=date, next_token=token)
+    if tweets["meta"]["result_count"]>0:
+        tweets_records = create_scraped_data_records(tweets, coin)
+        for tr in tweets_records:
+            calculate_sentiment_for_tweet(coin, tr)
+        there_is_next_token = "next_token" in tweets["meta"]
+        if there_is_next_token:
+            token = tweets["meta"]["next_token"]
+            calculate_score_for_tweet(coin, date, token)
 
 
 def create_scraped_data_record(tweets, input_data):

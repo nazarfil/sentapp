@@ -27,8 +27,6 @@ def get_datetime_from_string(date):
     out_f = format_T_H_M_S_ZZ
     date_obj_start = datetime.strptime("{}T{}".format(date, start), input_format)
     date_obj_end = datetime.strptime("{}T{}".format(date, end), input_format)
-    if(date_obj_start < date_obj_end):
-        date_obj_start = date_obj_start - timedelta(minutes=61);
     return date_obj_start.strftime(out_f).replace('UTC', 'Z'), date_obj_end.strftime(out_f).replace('UTC', 'Z')
 
 
