@@ -3,6 +3,8 @@ from sqlalchemy.sql import func
 from operator import itemgetter
 import csv, datetime
 
+from app.utility.formats import foramt_Y_M_D
+
 
 def calculate_mean_score(date, in_name):
     print("CALCULATING MEAN SCORE")
@@ -41,37 +43,37 @@ def mean_score_from_csv():
             db.session.commit()
 
 
-def calculate_hype_score(date, in_name):
-    print("CALCULATING HYPE SCORE")
+def calculate_hype_score(date, input_data_id):
+    print("CALCULATING HYPE SCORE for", input_data_id)
     yesterday = datetime.datetime.strptime(date, '%Y-%m-%d') - datetime.timedelta(days=1)
-    input_data = InputData.query.filter_by(name=in_name).first()
     sum_positive = (db.session.query(func.sum(SentimentScore.positive).label('positive'))
-                    .filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first(),
+                    .filter(SentimentScore.date == date, SentimentScore.input_data == input_data_id).first(),
                     "POSITIVE")
     sum_negative = (db.session.query(func.sum(SentimentScore.negative).label('negative'))
-                    .filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first(),
+                    .filter(SentimentScore.date == date, SentimentScore.input_data == input_data_id).first(),
                     "NEGATIVE")
     sum_neutral = (db.session.query(func.sum(SentimentScore.neutral).label('neutral'))
-                   .filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first(), "NEUTRAL")
+                   .filter(SentimentScore.date == date, SentimentScore.input_data == input_data_id).first(), "NEUTRAL")
     sum_mixed = (db.session.query(func.sum(SentimentScore.mixed).label('mixed'))
-                 .filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first(), "MIXED")
-    count_today = SentimentScore.query.filter_by(input_data=input_data.id, date=date).count()
-    count_yesterday = SentimentScore.query.filter_by(input_data=input_data.id,
+                 .filter(SentimentScore.date == date, SentimentScore.input_data == input_data_id).first(), "MIXED")
+    count_today = SentimentScore.query.filter_by(input_data=input_data_id, date=date).count()
+    count_yesterday = SentimentScore.query.filter_by(input_data=input_data_id,
                                                      date=yesterday.strftime('%Y-%m-%d')).count()
     delta = count_today - count_yesterday
-    if (sum_positive[0][0] != None) and (sum_negative[0][0] != None) and (sum_mixed[0][0] != None):
+    if (sum_positive[0][0] is not None) and (sum_negative[0][0] is not None) and (sum_mixed[0][0] is not None):
         absolute_hype = sum_positive[0].positive + sum_mixed[0].mixed - sum_negative[0].negative
         relative_hype = (sum_positive[0].positive + sum_mixed[0].mixed) / sum_negative[0].negative
         hype_record = SentimentHypeScore(
-            input_data=input_data.id,
+            input_data=input_data_id,
             absolute_hype=absolute_hype,
             relative_hype=relative_hype,
             delta_tweets=delta,
             date=date
         )
-        db.session.add(hype_record)
-        db.session.commit()
-
+        existing = db.session.query(SentimentHypeScore).filter_by(input_data=input_data_id, date=date).first()
+        if existing is None:
+            db.session.add(hype_record)
+            db.session.commit()
 
 
 def hype_score_from_csv():
@@ -79,13 +81,21 @@ def hype_score_from_csv():
     with open(csv_url, newline='') as csv_file:
         reader = csv.DictReader(csv_file, delimiter=',')
         for row in reader:
-            hype_record = calculate_hype_score(date=row["date"], in_name=row["name"])
-            db.session.add(hype_record)
-            db.session.commit()
+            input_data = InputData.query.filter_by(name=row["name"]).one()
+            if input_data is not None:
+                calculate_hype_score(date=row["date"], input_data_id=input_data)
 
 
 def hype_score_for_coin(name, date):
-    coin = InputData.query.filter_by(name=name).first()
-    if coin is not None:
-        calculate_hype_score(date=date, in_name=coin.name)
+    input_data = InputData.query.filter_by(name=name).one()
+    if input_data is not None:
+        calculate_hype_score(date=date, input_data_id=input_data)
 
+
+def hype_score_for_all_coins():
+    input_data_ids = db.session.query(SentimentScore.input_data.distinct()).all()
+    for data_id in input_data_ids:
+        dates = db.session.query(SentimentScore.date.distinct()).filter_by(input_data=data_id[0]).all()
+        for date in dates:
+            date_str = date[0].strftime(foramt_Y_M_D)
+            calculate_hype_score(date_str, input_data_id=data_id[0])

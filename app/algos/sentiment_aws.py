@@ -1,6 +1,4 @@
 import boto3
-import json
-
 
 class AwsClient:
     region = "us-east-2"

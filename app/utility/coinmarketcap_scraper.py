@@ -76,8 +76,8 @@ def extract_to_mem():
                 id = sel.xpath("//td[1]/div/text()").extract_first()
                 nom = sel.xpath("//td[2]/div/a/text()").extract_first()
                 symbole = sel.xpath("//td[3]/div/text()").extract_first()
-                price = sel.xpath("//td[4]/p/text()").extract_first()
-                market_cap = sel.xpath("//td[5]/div/a/text()").extract_first()
+                market_cap = sel.xpath("//td[4]/p/text()").extract_first()
+                price = sel.xpath("//td[5]/div/a/text()").extract_first()
                 values = dict({'id': id.strip().replace('\n', ''),
                                'name': nom.strip().replace('\n', ''),
                                'ticker': symbole.strip().replace('\n', ''),

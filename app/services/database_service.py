@@ -1,6 +1,8 @@
 from app.models import *
 from sqlalchemy.sql import func
 
+from app.view import TableView
+
 
 def query_input_data_paged(page, offset):
     return InputData.query.paginate(page, offset, False).items

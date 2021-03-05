@@ -41,10 +41,10 @@ def create_scraped_data_records(tweets, coin):
         text_data = " ".join(filter(lambda x: x[0] != '@', text_data.split()))
         if len(text_data) > 260:
             text_data = text_data[0:260]
-            twees_list.append(ScrapedData(text=text_data,
-                                          date=tweet["created_at"],
-                                          source=source,
-                                          input_data=coin.id))
+        twees_list.append(ScrapedData(text=text_data,
+                                      date=tweet["created_at"],
+                                      source=source,
+                                      input_data=coin.id))
     return twees_list
 
 
@@ -55,7 +55,6 @@ def scrape_twitter_from_db(date):
     for coin in coins:
         print(coin.name, " is : ", coin.id)
         calculate_score_for_tweet(coin, date)
-
 
 
 def scrape_twitter_from_db_coin(name, date):
@@ -69,7 +68,7 @@ def scrape_twitter_from_db_coin(name, date):
 def calculate_score_for_tweet(coin, date, token="none"):
     print("Calculating score for ", coin.name)
     tweets = get_tweet_for_input(coin, input_date=date, next_token=token)
-    if tweets["meta"]["result_count"]>0:
+    if tweets["meta"]["result_count"] > 0:
         tweets_records = create_scraped_data_records(tweets, coin)
         for tr in tweets_records:
             calculate_sentiment_for_tweet(coin, tr)

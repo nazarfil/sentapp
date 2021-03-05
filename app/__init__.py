@@ -10,7 +10,6 @@ from app.jobs.populate_input_data import populate_db_from_csv, update_populate_d
 from app.jobs.twitter_scrape_job import scrape_twitter_from_csv
 from app.jobs.populate_sentiment_for_input import calculate_sentiment
 from .routes import bp
-from celery import Celery
 import app.services.database_service as db_service
 from app.config import Config
 
@@ -27,19 +26,17 @@ def init_app():
     migrate.init_app(app, db)
     with app.app_context():
         app.register_blueprint(bp)
-        #
-        #celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-        #celery.conf.update(app.config)
+
+        #statement = db_service.create_view_statement(db)
+        #create_view('table_view_max', statement, db.metadata)
         try:
-            statement = db_service.create_view_statement(db)
-            create_view('table_view_max', statement, db.metadata)
+            print("Try creating view")
         except ProgrammingError:
             print("View already exists")
         try:
-            db.create_all()
+            print("Trying to create database")
+            #db.create_all()
+            #
         except:
-            print("Tables already created")
-
+            print("Tables already created or error occured")
         return app
-
-
