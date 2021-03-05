@@ -29,14 +29,6 @@ def init_app():
 
         #statement = db_service.create_view_statement(db)
         #create_view('table_view_max', statement, db.metadata)
-        try:
-            print("Try creating view")
-        except ProgrammingError:
-            print("View already exists")
-        try:
-            print("Trying to create database")
-            #db.create_all()
-            #
-        except:
-            print("Tables already created or error occured")
+        # db.create_all()
+
         return app
