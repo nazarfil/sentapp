@@ -113,7 +113,7 @@ def calculate_mean_score():
     return jsonify({'status': "Request was processed"})
 
 @bp.route('healthcheck')
-def get_demo_table():
+def healthcheck():
     return jsonify({
         'status':'OK'
     })
