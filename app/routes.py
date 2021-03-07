@@ -11,7 +11,7 @@ from app.jobs.twitter_scrape_job import scrape_twitter_from_db, scrape_twitter_f
 from app.utility.coinmarketcap_scraper import extract_to_mem
 from app.utility.data import data_demo
 from app.utility.formats import foramt_Y_M_D
-from flask import Response
+from flask import make_response
 
 bp = Blueprint('/api', __name__, url_prefix='/api')
 from flask import request
@@ -65,14 +65,6 @@ def get_mean_scores(name):
         {'data': [create_mean_result(input_data, mean_score) for (input_data, mean_score) in sentiment_scores]})
 
 
-@bp.route('table', methods=['GET'])
-def get_hype():
-    hypes = db_service.query_table_view()
-    response = Response(jsonify([hype.serialized for hype in hypes]))
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    return response
-
-
 ## MANAGE API
 @bp.route('refresh_coins', methods=["POST"])
 def refresh_coins():
@@ -124,9 +116,17 @@ def healthcheck():
     })
 
 
+@bp.route('table', methods=['GET'])
+def get_hype():
+    hypes = db_service.query_table_view()
+    response = make_response(jsonify([hype.serialized for hype in hypes]))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
+
 @bp.route('table/demo', methods=["GET"])
 def get_demo_table():
-    response = Response( jsonify(data_demo))
+    response = make_response(jsonify(data_demo))
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
@@ -135,3 +135,4 @@ def get_demo_table():
 def get_long_term_score():
     scores = db_service.get_long_scores()
     return jsonify({"ok": "ok"})
+
