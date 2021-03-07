@@ -1,14 +1,8 @@
-from datetime import datetime
-from sqlalchemy import and_, or_
-from flask import jsonify
-import matplotlib.pyplot as plt
-import pandas as pd
-from app.models import *
-from sqlalchemy.sql import func
 from multiprocessing import Process
 
-import matplotlib.dates as mdates
-from app.utility.formats import foramt_Y_M_D
+from sqlalchemy.sql import func
+from app.models import *
+from app.utility.paint import draw_graphs
 from app.view import TableView
 
 
@@ -56,32 +50,6 @@ def create_view_statement(db_instance):
         InputData.id == q2.c.input_data)
 
 
-def draw_graphs(all_scores, name):
-    fig, ax = plt.subplots()
-    num_colors = 4
-    cm = plt.get_cmap('Dark2')
-    #ax.set_prop_cycle(color=[cm(1. * (i) / num_colors) for i in range(num_colors)])
-    filename = '{}.png'.format(name)
-    for key, curve in all_scores.items():
-        df = pd.DataFrame(curve)
-        plt.plot_date(df['date'], df[name], '-', label=key)
-        plt.xticks(df['date'])
-
-    plt.ylabel('Graph: {}'.format(name))
-    format_months = mdates.DateFormatter('%B-%d')
-    ax.xaxis.set_major_formatter(format_months)
-    # Shrink current axis's height by 10% on the bottom
-    box = ax.get_position()
-    ax.set_position([box.x0, box.y0 + box.height * 0.1,
-                     box.width, box.height * 0.9])
-
-    # Put a legend below current axis
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5),
-              shadow=True)
-    fig.autofmt_xdate()
-    fig.savefig(filename, bbox_inches='tight')
-    # format the ticks
-    plt.close(fig)
 
 
 def get_long_scores():
