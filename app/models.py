@@ -160,14 +160,13 @@ class SentimentHypeScore(db.Model):
         # do custom stuff
 
     def __repr__(self):
-        return '<SentimentHypeScore {}>'.format(self.sentiment)
+        return '<SentimentHypeScore {}>'.format(self.relative_hype)
 
     @property
     def serialized(self):
         return dict(id=self.id,
                     input_data=self.input_data,
-                    absolute_hype=self.absolute_hype,
-                    positive=float(self.positive),
+                    absolute_hype=float(self.absolute_hype),
                     relative_hype=float(self.relative_hype),
                     delta_tweets=float(self.delta_tweets),
                     date=self.date)

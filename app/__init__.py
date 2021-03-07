@@ -1,6 +1,5 @@
 from sqlite3 import ProgrammingError
 
-from flask import Flask
 from flask_migrate import Migrate
 
 from sqlalchemy_utils import create_view
@@ -11,6 +10,7 @@ from app.jobs.twitter_scrape_job import scrape_twitter_from_csv
 from app.jobs.populate_sentiment_for_input import calculate_sentiment
 from .routes import bp
 import app.services.database_service as db_service
+from flask import Flask
 from app.config import Config
 
 migrate = Migrate()

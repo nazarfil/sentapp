@@ -11,12 +11,13 @@ from app.jobs.twitter_scrape_job import scrape_twitter_from_db, scrape_twitter_f
 from app.utility.coinmarketcap_scraper import extract_to_mem
 from app.utility.data import data_demo
 from app.utility.formats import foramt_Y_M_D
+from flask import Response
 
 bp = Blueprint('/api', __name__, url_prefix='/api')
 from flask import request
 
 
-#CLIENT API
+# CLIENT API
 @bp.route('calculate_score', methods=['POST'])
 def calculate_score():
     query = {"data": "not_suppeorted_yet"}
@@ -67,7 +68,10 @@ def get_mean_scores(name):
 @bp.route('table', methods=['GET'])
 def get_hype():
     hypes = db_service.query_table_view()
-    return jsonify([hype.serialized for hype in hypes])
+    response = Response(jsonify([hype.serialized for hype in hypes]))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
 
 ## MANAGE API
 @bp.route('refresh_coins', methods=["POST"])
@@ -107,17 +111,27 @@ def calculate_mean_score_for_coin(name):
     return jsonify({'status': "Request was processed"})
 
 
-@bp.route('calculate_hype_score', methods =["POST"])
+@bp.route('calculate_hype_score', methods=["POST"])
 def calculate_mean_score():
     hype_score_for_all_coins()
     return jsonify({'status': "Request was processed"})
 
-@bp.route('healthcheck')
+
+@bp.route('healthcheck', methods=["GET"])
 def healthcheck():
     return jsonify({
-        'status':'OK'
+        'status': 'OK'
     })
 
-@bp.route('table/demo')
+
+@bp.route('table/demo', methods=["GET"])
 def get_demo_table():
-    return jsonify(data_demo)
+    response = Response( jsonify(data_demo))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
+
+@bp.route('try')
+def get_long_term_score():
+    scores = db_service.get_long_scores()
+    return jsonify({"ok": "ok"})
