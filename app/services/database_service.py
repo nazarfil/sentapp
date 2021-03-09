@@ -68,3 +68,28 @@ def get_long_scores():
     p2.start()
     p2.join()
     return all_scores
+
+
+def get_history_score(name, start_date, end_date, graph_types):
+    types = graph_types.split(",")
+    available_type = ["absolute_hype","relative_hype","delta_tweets"]
+    coin = InputData.query.filter(InputData.name==name).first()
+    scores = []
+    result = {
+        'coin' : coin.serialized
+    }
+    if coin is not None:
+        scores = SentimentHypeScore.query.filter(SentimentHypeScore.date.between(start_date,end_date), SentimentHypeScore.input_data==coin.id).order_by(SentimentHypeScore.date.asc()).all()
+
+    for graph_type in types:
+        if graph_type in available_type:
+            result[graph_type] = []
+
+    if len(scores)> 0:
+        for score in scores:
+            for graph_type in types:
+                point =  [score.serialized['date'],score.serialized[graph_type]]
+                result[graph_type].append(point)
+
+    return result
+

@@ -1,8 +1,8 @@
 from datetime import datetime
-
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask import (Blueprint)
 from flask import jsonify
-
+from flask_httpauth import HTTPBasicAuth
 import app.services.database_service as db_service
 from app import populate_db_from_csv, hype_score_from_csv
 from app.jobs.calculate_mean_socre import hype_score_for_coin, hype_score_for_all_coins
@@ -15,7 +15,19 @@ from flask import make_response
 
 bp = Blueprint('/api', __name__, url_prefix='/api')
 from flask import request
+#Basic auth
+auth = HTTPBasicAuth()
 
+users = {
+    "john": generate_password_hash("hello"),
+    "susan": generate_password_hash("bye")
+}
+
+@auth.verify_password
+def verify_password(username, password):
+    if username in users and \
+            check_password_hash(users.get(username), password):
+        return username
 
 # CLIENT API
 @bp.route('calculate_score', methods=['POST'])
@@ -64,6 +76,45 @@ def get_mean_scores(name):
     return jsonify(
         {'data': [create_mean_result(input_data, mean_score) for (input_data, mean_score) in sentiment_scores]})
 
+@bp.route('healthcheck', methods=["GET"])
+def healthcheck():
+    return jsonify({
+        'status': 'OK'
+    })
+
+
+@bp.route('table', methods=['GET'])
+def get_hype():
+    hypes = db_service.query_table_view()
+    response = make_response(jsonify([hype.serialized for hype in hypes]))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
+
+@bp.route('table/demo', methods=["GET"])
+def get_demo_table():
+    response = make_response(jsonify(data_demo))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
+
+@bp.route('try')
+def get_long_term_score():
+    scores = db_service.get_long_scores()
+    return jsonify({"ok": "ok"})
+
+
+@bp.route('history/hype_score/<name>')
+def get_history_hype_score(name):
+    today = datetime.today().date().strftime(foramt_Y_M_D)
+    start_date = request.args.get('start_date', default='2021-01-01', type=str)
+    end_date = request.args.get('end_date', default=today, type=str)
+    graph_types = request.args.get('graph',default='absolute_hype',type=str)
+    history_scores = db_service.get_history_score(name, start_date, end_date,graph_types)
+    response = make_response(jsonify(history_scores))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
 
 ## MANAGE API
 @bp.route('refresh_coins', methods=["POST"])
@@ -107,32 +158,4 @@ def calculate_mean_score_for_coin(name):
 def calculate_mean_score():
     hype_score_for_all_coins()
     return jsonify({'status': "Request was processed"})
-
-
-@bp.route('healthcheck', methods=["GET"])
-def healthcheck():
-    return jsonify({
-        'status': 'OK'
-    })
-
-
-@bp.route('table', methods=['GET'])
-def get_hype():
-    hypes = db_service.query_table_view()
-    response = make_response(jsonify([hype.serialized for hype in hypes]))
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    return response
-
-
-@bp.route('table/demo', methods=["GET"])
-def get_demo_table():
-    response = make_response(jsonify(data_demo))
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    return response
-
-
-@bp.route('try')
-def get_long_term_score():
-    scores = db_service.get_long_scores()
-    return jsonify({"ok": "ok"})
 

@@ -1,8 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
-
+import time
 db = SQLAlchemy()
 from sqlalchemy.sql import func
-
+from datetime import timezone, datetime, timedelta
 
 class InputData(db.Model):
     __tablename__ = 'input_data'
@@ -169,5 +169,7 @@ class SentimentHypeScore(db.Model):
                     absolute_hype=float(self.absolute_hype),
                     relative_hype=float(self.relative_hype),
                     delta_tweets=float(self.delta_tweets),
-                    date=self.date)
+                    date=self.date_to_timestamp(self.date))
 
+    def date_to_timestamp(self, dt):
+        return (dt - datetime(1970,1,1, tzinfo=timezone.utc).date()) / timedelta(milliseconds=1)
