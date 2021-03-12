@@ -29,7 +29,7 @@ def query_sentiment_mean_score_for_coin(name):
 
 
 def query_table_view():
-    return TableView.query.filter(TableView.relative_hype is not None).all()
+    return db.session.query(TableView).filter(TableView.relative_hype is not None).all()
 
 
 def create_view_statement(db_instance):

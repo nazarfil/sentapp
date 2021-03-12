@@ -1,5 +1,4 @@
-from app.models import db, InputData, ScrapedData
-from app.scraper.twitter_service import search_twitter
+from app.scraper.twitter.twitter_service import search_twitter
 from datetime import datetime, timedelta
 from app.utility.formats import *
 

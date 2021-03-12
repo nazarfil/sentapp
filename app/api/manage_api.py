@@ -3,10 +3,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask import (Blueprint)
 from flask import jsonify
 from flask_httpauth import HTTPBasicAuth
-from app.jobs.calculate_mean_socre import hype_score_for_coin, hype_score_for_all_coins
-from app.jobs.populate_input_data import populate_db_api
+from app.jobs.calculate_hype_score_job import hype_score_for_coin, hype_score_for_all_coins
+from app.jobs.populate_input_data_job import populate_db_api
 from app.jobs.twitter_scrape_job import scrape_twitter_from_db, scrape_twitter_from_db_coin
-from app.utility.coinmarketcap_scraper import extract_to_mem
+from app.scraper.coinmarketcap.coinmarketcap_scraper import extract_to_mem
 from app.utility.formats import foramt_Y_M_D
 from flask import request
 

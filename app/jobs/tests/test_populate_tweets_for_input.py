@@ -1,4 +1,4 @@
-from app.scraper.search_tweets_for_input import *
+from app.scraper.twitter.search_tweets_for_input import *
 import unittest
 
 class TestTweeterApiQuery(unittest.TestCase):

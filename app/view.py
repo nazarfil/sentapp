@@ -1,18 +1,18 @@
 # attaches the view to the metadata using the select statement
 from sqlalchemy.ext.declarative import declarative_base
-
+from sqlalchemy import Column, Numeric, String, Date
 Base = declarative_base()
 
 class TableView(Base):
     __tablename__ = 'table_view_max'
-    name = db.Column(db.String(32), primary_key=True)
-    ticker = db.Column(db.String(32))
-    market_cap = db.Column(db.String(32))
-    price = db.Column(db.String(32))
-    absolute_hype = db.Column(db.Numeric)
-    relative_hype = db.Column(db.Numeric)
-    delta_tweets = db.Column(db.Numeric)
-    date = db.Column(db.Date)
+    name = Column(String(32), primary_key=True)
+    ticker = Column(String(32))
+    market_cap = Column(String(32))
+    price = Column(String(32))
+    absolute_hype = Column(Numeric)
+    relative_hype = Column(Numeric)
+    delta_tweets = Column(Numeric)
+    date = Column(Date)
 
     @property
     def serialized(self):

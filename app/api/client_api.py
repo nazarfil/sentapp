@@ -1,5 +1,5 @@
 import app.services.database_service as db_service
-from app.utility.data import data_demo
+from app.utility.resources.data import data_demo
 from flask import make_response
 from datetime import datetime
 from flask import (Blueprint)

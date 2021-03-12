@@ -1,6 +1,6 @@
 # Standard library imports...
 from unittest.mock import Mock, patch
-from app.scraper.twitter_service import search_twitter
+from app.scraper.twitter.twitter_service import search_twitter
 from nose.tools import assert_is_not_none,assert_dict_equal
 
 
