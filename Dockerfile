@@ -15,6 +15,7 @@ WORKDIR /sentapp
 COPY app /sentapp/app
 COPY requirements.txt /sentapp
 COPY wsgi.py /sentapp
+COPY static /sentapp
 RUN pip3 install -r requirements.txt
 
 # Run app.py when the container launches

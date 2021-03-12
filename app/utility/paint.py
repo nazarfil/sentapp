@@ -3,7 +3,7 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def draw_graphs(all_scores, name):
+def draw_graphs(all_scores, name,path="static/images"):
     fig, ax = plt.subplots()
     num_colors = 4
     cm = plt.get_cmap('Dark2')
