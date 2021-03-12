@@ -1,4 +1,5 @@
 """Flask configuration variables."""
+import logging
 from os import environ, path
 from dotenv import load_dotenv
 
@@ -22,7 +23,7 @@ class Config:
     #Database
     SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_DATABASE_URI")
     if SQLALCHEMY_DATABASE_URI is None:
-        print("DB uri is not set, using default")
+        logging.info("DB uri is not set, using default")
         SQLALCHEMY_DATABASE_URI='postgresql://user:test@localhost/db'
     SQLALCHEMY_DATABASE_PASSWORD = environ.get("SQLALCHEMY_DATABASE_PASSWORD")
     SQLALCHEMY_DATABASE_USERNAME = environ.get("SQLALCHEMY_DATABASE_USERNAME")

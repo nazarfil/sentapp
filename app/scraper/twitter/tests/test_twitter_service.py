@@ -1,6 +1,6 @@
 # Standard library imports...
 from unittest.mock import Mock, patch
-from app.scraper.twitter.twitter_service import search_twitter
+from app.scraper.twitter.twitter_scraper import search_twitter
 from nose.tools import assert_is_not_none,assert_dict_equal
 
 
@@ -30,6 +30,5 @@ def test_request_response(mock_get):
     mock_get.return_value.json.return_value = mocked_response
     query = "twitter"
     query_response = search_twitter(query)
-    print(query_response)
     assert_is_not_none(query_response)
     assert_dict_equal(query_response, mocked_response)

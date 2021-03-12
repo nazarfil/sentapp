@@ -1,12 +1,12 @@
-from app.scraper.twitter.twitter_service import search_twitter
 from datetime import datetime, timedelta
+
+from app.scraper.twitter.twitter_scraper import search_twitter
 from app.utility.formats import *
 
 
 def get_tweet_for_input(input_data, input_date, next_token='none'):
     query = "{} or {} or {} or {} and -is:retweet".format(input_data.name, input_data.ticker, input_data.name.lower(),
                                                           input_data.ticker.lower())
-    print(query)
     start, end = get_datetime_from_string(input_date)
     if next_token == 'none':
         return search_twitter(query=query, start_time=start, end_time=end)
@@ -20,7 +20,6 @@ def get_datetime_from_string(date):
     today = datetime.today().date().strftime(foramt_Y_M_D)
     if today == date:
         end = (datetime.now() - timedelta(minutes=61)).strftime(format_H_M_S) + "Z"
-        print(end)
 
     input_format = format_T_H_M_S_Z
     out_f = format_T_H_M_S_ZZ

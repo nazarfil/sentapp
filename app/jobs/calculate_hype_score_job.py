@@ -1,13 +1,14 @@
-from app.models import SentimentMeanScore, SentimentScore, db, InputData, SentimentHypeScore
+from app.database.models import SentimentScore, db, InputData, SentimentHypeScore
 from sqlalchemy.sql import func
 from operator import itemgetter
-import csv, datetime
+import csv
+import logging
 
 from app.utility.formats import foramt_Y_M_D
 
 
 def calculate_mean_score(date, in_name):
-    print("CALCULATING MEAN SCORE")
+    logging.info("Calculating mean score for ", in_name)
     input_data = InputData.query.filter_by(name=in_name).first()
     avg_positive = (db.session.query(func.avg(SentimentScore.positive).label('positive'))
                     .filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first(),
@@ -44,22 +45,18 @@ def mean_score_from_csv():
 
 
 def calculate_hype_score(date, input_data_id):
-    print("CALCULATING HYPE SCORE for", input_data_id)
-    yesterday = datetime.datetime.strptime(date, '%Y-%m-%d') - datetime.timedelta(days=1)
+    logging.info("Calculating hype score for", input_data_id)
     sum_positive = (db.session.query(func.sum(SentimentScore.positive).label('positive'))
                     .filter(SentimentScore.date == date, SentimentScore.input_data == input_data_id).first(),
                     "POSITIVE")
     sum_negative = (db.session.query(func.sum(SentimentScore.negative).label('negative'))
                     .filter(SentimentScore.date == date, SentimentScore.input_data == input_data_id).first(),
                     "NEGATIVE")
-    sum_neutral = (db.session.query(func.sum(SentimentScore.neutral).label('neutral'))
-                   .filter(SentimentScore.date == date, SentimentScore.input_data == input_data_id).first(), "NEUTRAL")
+
     sum_mixed = (db.session.query(func.sum(SentimentScore.mixed).label('mixed'))
                  .filter(SentimentScore.date == date, SentimentScore.input_data == input_data_id).first(), "MIXED")
     count_today = SentimentScore.query.filter_by(input_data=input_data_id, date=date).count()
-    count_yesterday = SentimentScore.query.filter_by(input_data=input_data_id,
-                                                     date=yesterday.strftime('%Y-%m-%d')).count()
-    delta = count_today - count_yesterday
+
     if (sum_positive[0][0] is not None) and (sum_negative[0][0] is not None) and (sum_mixed[0][0] is not None):
         absolute_hype = sum_positive[0].positive + sum_mixed[0].mixed - sum_negative[0].negative
         relative_hype = (sum_positive[0].positive + sum_mixed[0].mixed) / sum_negative[0].negative
@@ -67,7 +64,7 @@ def calculate_hype_score(date, input_data_id):
             input_data=input_data_id,
             absolute_hype=absolute_hype,
             relative_hype=relative_hype,
-            delta_tweets=delta,
+            count=count_today,
             date=date
         )
         existing = db.session.query(SentimentHypeScore).filter_by(input_data=input_data_id, date=date).first()

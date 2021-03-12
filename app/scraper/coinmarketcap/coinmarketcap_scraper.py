@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # coding: utf-8
+from app import log
 
 import requests
 from bs4 import BeautifulSoup
@@ -8,7 +9,7 @@ import csv
 import datetime
 import cfscrape
 
-
+logger = log.setup_custom_logger('scraper')
 def extract(url):
     session = requests.session()
     start = datetime.datetime.now()
@@ -18,7 +19,7 @@ def extract(url):
 
         if response.status_code == 200:
             with open("cryptocurrencies_{}.csv".format(str(datetime.date.today())), "w+") as f:
-                print("Printing to file")
+                logger.info("Printing to file")
                 fieldnames = ['id', 'name', 'ticker', 'price', 'market_cap']
                 writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=',')
                 writer.writeheader()
@@ -44,14 +45,13 @@ def extract(url):
                         clean_values.append(value)
 
                     dict_row = dict(zip(fieldnames, clean_values))
-                    print(dict_row)
                     writer.writerow(dict_row)
 
             end = datetime.datetime.now()
             time_elapsed = str(end - start)
-            print('\n')
-            print('-- TIME ELAPSED --')
-            print(time_elapsed)
+            logger.info('\n')
+            logger.info('-- TIME ELAPSED --')
+            logger.info(time_elapsed)
             break
 
 

@@ -1,8 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
-import time
-db = SQLAlchemy()
-from sqlalchemy.sql import func
 from datetime import timezone, datetime, timedelta
+
+db = SQLAlchemy()
+
 
 class InputData(db.Model):
     __tablename__ = 'input_data'
@@ -12,8 +12,6 @@ class InputData(db.Model):
     date = db.Column(db.Date)
     ticker = db.Column(db.String(32))
     order = db.Column(db.Integer)
-    price = db.Column(db.String(32))
-    market_cap = db.Column(db.String(32))
 
     def __init__(self, **kwargs):
         super(InputData, self).__init__(**kwargs)
@@ -30,9 +28,7 @@ class InputData(db.Model):
                     date=self.date,
                     source=self.source,
                     ticker=self.ticker,
-                    order=self.order,
-                    price = self.price,
-                    market_cap= self.market_cap
+                    order=self.order
                     )
 
 
@@ -44,7 +40,6 @@ class FinancialData(db.Model):
     market_cap = db.Column(db.Numeric)
     date = db.Column(db.Date)
     volume = db.Column(db.Numeric)
-
 
     def __init__(self, **kwargs):
         super(FinancialData, self).__init__(**kwargs)
@@ -112,76 +107,13 @@ class SentimentScore(db.Model):
         return '<SentimentScore {}>'.format(self.sentiment)
 
 
-class SentimentMeanScore(db.Model):
-    __tablename__ = 'sentiment_mean_score'
-    id = db.Column(db.Integer, primary_key=True)
-    input_data = db.Column(db.Integer, db.ForeignKey('input_data.id'))
-    sentiment = db.Column(db.String(32))
-    positive = db.Column(db.Numeric)
-    negative = db.Column(db.Numeric)
-    neutral = db.Column(db.Numeric)
-    mixed = db.Column(db.Numeric)
-    date = db.Column(db.Date)
-    source = db.Column(db.String(60))
-
-    def __init__(self, **kwargs):
-        super(SentimentMeanScore, self).__init__(**kwargs)
-        # do custom stuff
-
-    def __repr__(self):
-        return '<SentimentMeanScore {}>'.format(self.sentiment)
-
-    @property
-    def serialized(self):
-        return dict(id=self.id,
-                    input_data=self.input_data,
-                    sentiment=self.sentiment,
-                    positive=float(self.positive),
-                    negative=float(self.negative),
-                    neutral=float(self.neutral),
-                    mixed=float(self.mixed),
-                    date=self.date,
-                    source=self.source)
-
-
-class SentimentSumScore(db.Model):
-    __tablename__ = 'sentiment_sum_score'
-    id = db.Column(db.Integer, primary_key=True)
-    input_data = db.Column(db.Integer, db.ForeignKey('input_data.id'))
-    sentiment = db.Column(db.String(32))
-    positive = db.Column(db.Numeric)
-    negative = db.Column(db.Numeric)
-    neutral = db.Column(db.Numeric)
-    mixed = db.Column(db.Numeric)
-    date = db.Column(db.Date)
-    source = db.Column(db.String(60))
-
-    def __init__(self, **kwargs):
-        super(SentimentSumScore, self).__init__(**kwargs)
-        # do custom stuff
-
-    def __repr__(self):
-        return '<SentimentSumScore {}>'.format(self.sentiment)
-
-    @property
-    def serialized(self):
-        return dict(id=self.id,
-                    input_data=self.input_data,
-                    sentiment=self.sentiment,
-                    positive=float(self.positive),
-                    negative=float(self.negative),
-                    neutral=float(self.neutral),
-                    mixed=float(self.mixed),
-                    date=self.date,
-                    source=self.source)
-
 class SentimentHypeScore(db.Model):
     __tablename__ = 'sentiment_hype_score'
     id = db.Column(db.Integer, primary_key=True)
     input_data = db.Column(db.Integer, db.ForeignKey('input_data.id'))
     absolute_hype = db.Column(db.Numeric, )
     relative_hype = db.Column(db.Numeric)
-    delta_tweets = db.Column(db.Integer)
+    count = db.Column(db.Integer)
     date = db.Column(db.Date)
 
     def __init__(self, **kwargs):
@@ -197,8 +129,8 @@ class SentimentHypeScore(db.Model):
                     input_data=self.input_data,
                     absolute_hype=float(self.absolute_hype),
                     relative_hype=float(self.relative_hype),
-                    delta_tweets=float(self.delta_tweets),
+                    count=float(self.count),
                     date=self.date_to_timestamp(self.date))
 
     def date_to_timestamp(self, dt):
-        return (dt - datetime(1970,1,1, tzinfo=timezone.utc).date()) / timedelta(milliseconds=1)
+        return (dt - datetime(1970, 1, 1, tzinfo=timezone.utc).date()) / timedelta(milliseconds=1)

@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import (Blueprint)
@@ -28,12 +29,12 @@ def verify_password(username, password):
 def refresh_coins():
     # Extracting coins from CoinMarketCap
     try:
-        print("Refreshing coins data")
+        logging.info("Refreshing coins data")
         coins = extract_to_mem()
         for coin in coins:
             populate_db_api(coin)
     except:
-        print("Unable to refresh coins data")
+        logging.error("Unable to refresh coins data")
     return jsonify({'status': "Request was processed"})
 
 

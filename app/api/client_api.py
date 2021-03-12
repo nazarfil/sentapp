@@ -7,8 +7,8 @@ from flask import jsonify
 from app.utility.formats import foramt_Y_M_D
 from flask import request
 
-
 client_bp = Blueprint('/api', __name__, url_prefix='/api')
+
 
 # CLIENT API
 @client_bp.route('calculate_score', methods=['POST'])
@@ -57,6 +57,7 @@ def get_mean_scores(name):
     return jsonify(
         {'data': [create_mean_result(input_data, mean_score) for (input_data, mean_score) in sentiment_scores]})
 
+
 @client_bp.route('healthcheck', methods=["GET"])
 def healthcheck():
     return jsonify({
@@ -79,7 +80,7 @@ def get_demo_table():
     return response
 
 
-@client_bp.route('try')
+@client_bp.route('draw_bars')
 def get_long_term_score():
     scores = db_service.get_long_scores()
     return jsonify({"ok": "ok"})
@@ -90,8 +91,8 @@ def get_history_hype_score(name):
     today = datetime.today().date().strftime(foramt_Y_M_D)
     start_date = request.args.get('start_date', default='2021-01-01', type=str)
     end_date = request.args.get('end_date', default=today, type=str)
-    graph_types = request.args.get('graph',default='absolute_hype',type=str)
-    history_scores = db_service.get_history_score(name, start_date, end_date,graph_types)
+    graph_types = request.args.get('graph', default='absolute_hype', type=str)
+    history_scores = db_service.get_history_score(name, start_date, end_date, graph_types)
     response = make_response(jsonify(history_scores))
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response

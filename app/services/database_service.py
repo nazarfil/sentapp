@@ -1,9 +1,17 @@
 from multiprocessing import Process
 
 from sqlalchemy.sql import func
-from app.models import *
 from app.utility.paint import draw_graphs
-from app.view import TableView
+from app.database.view import TableView
+from app.database.models import *
+
+def create_and_save_scrape_data(input_data, source, text_data, tweet):
+    scraped_data = ScrapedData(text=text_data,
+                               date=tweet["created_at"],
+                               source=source,
+                               input_data=input_data.id)
+    db.session.add(scraped_data)
+    db.session.commit()
 
 
 def query_input_data_paged(page, offset):
@@ -39,21 +47,47 @@ def create_view_statement(db_instance):
     q2 = db_instance.session.query(
         SentimentHypeScore.relative_hype,
         SentimentHypeScore.absolute_hype,
-        SentimentHypeScore.delta_tweets,
+        SentimentHypeScore.count,
         SentimentHypeScore.date,
         SentimentHypeScore.input_data) \
         .select_from(SentimentHypeScore.__table__.
-                     join(subq1, (SentimentHypeScore.date == subq1.c.max_date) & (
-            SentimentHypeScore.input_data == subq1.c.input_id))) \
+                     join(subq1,
+                          (SentimentHypeScore.date == subq1.c.max_date)
+                          &
+                          (SentimentHypeScore.input_data == subq1.c.input_id))) \
         .subquery()
-    return db_instance.select([q2, InputData.price, InputData.ticker, InputData.name, InputData.market_cap]).where(
+    return db_instance.select([q2, InputData.ticker, InputData.name]).where(
         InputData.id == q2.c.input_data)
 
 
+def get_history_score(name, start_date, end_date, graph_types):
+    types = graph_types.split(",")
+    available_type = ["absolute_hype", "relative_hype", "tweets_count"]
+    coin = InputData.query.filter(InputData.name == name).first()
+    scores = []
+    result = {
+        'coin': coin.serialized
+    }
+    if coin is not None:
+        scores = SentimentHypeScore.query.filter(SentimentHypeScore.date.between(start_date, end_date),
+                                                 SentimentHypeScore.input_data == coin.id).order_by(
+            SentimentHypeScore.date.asc()).all()
+
+    for graph_type in types:
+        if graph_type in available_type:
+            result[graph_type] = []
+
+    if len(scores) > 0:
+        for score in scores:
+            for graph_type in types:
+                point = [score.serialized['date'], score.serialized[graph_type]]
+                result[graph_type].append(point)
+
+    return result
 
 
 def get_long_scores():
-    #input_data_ids = db.session.query(SentimentHypeScore.input_data).filter(and_(SentimentHypeScore.date=='2021-03-03',or_(SentimentHypeScore.absolute_hype>6, SentimentHypeScore.absolute_hype<-6))).all()
+    # input_data_ids = db.session.query(SentimentHypeScore.input_data).filter(and_(SentimentHypeScore.date=='2021-03-03',or_(SentimentHypeScore.absolute_hype>6, SentimentHypeScore.absolute_hype<-6))).all()
     input_data_ids = db.session.query(SentimentHypeScore.input_data).all()
     all_scores = {}
     for data_id in input_data_ids:
@@ -68,28 +102,3 @@ def get_long_scores():
     p2.start()
     p2.join()
     return all_scores
-
-
-def get_history_score(name, start_date, end_date, graph_types):
-    types = graph_types.split(",")
-    available_type = ["absolute_hype","relative_hype","delta_tweets"]
-    coin = InputData.query.filter(InputData.name==name).first()
-    scores = []
-    result = {
-        'coin' : coin.serialized
-    }
-    if coin is not None:
-        scores = SentimentHypeScore.query.filter(SentimentHypeScore.date.between(start_date,end_date), SentimentHypeScore.input_data==coin.id).order_by(SentimentHypeScore.date.asc()).all()
-
-    for graph_type in types:
-        if graph_type in available_type:
-            result[graph_type] = []
-
-    if len(scores)> 0:
-        for score in scores:
-            for graph_type in types:
-                point =  [score.serialized['date'],score.serialized[graph_type]]
-                result[graph_type].append(point)
-
-    return result
-

@@ -1,9 +1,11 @@
+from app import log
+
 from app.algos.sentiment_aws import AwsClient
-from app.models import db, InputData, ScrapedData, SentimentScore
+from app.database.models import db, InputData, ScrapedData, SentimentScore
 import app.services.database_service as db_service
 
 BATCH_SIZE = 100
-
+logger = log.setup_custom_logger('services')
 
 def assign_score(input_data, date, sentiment, source):
     sentiment_record = SentimentScore(
@@ -22,7 +24,7 @@ def assign_score(input_data, date, sentiment, source):
 
 
 def calculate_sentiment():
-    print("CALCULATING SENTIMENTS")
+    logger.info("CALCULATING SENTIMENTS")
     name = "Cardano"
     input_data = db_service.query_input_data(name)
     data_remains = True
@@ -32,7 +34,6 @@ def calculate_sentiment():
         data_remains = len(scraped_data_list) > 0
         for data_record in scraped_data_list:
             sentiment = client.get_sentiment(text=data_record.text)
-            print(sentiment)
             assign_score(input_data, data_record.date, sentiment, AwsClient.name)
             db.session.delete(data_record)
             # commit (or flush)
@@ -40,6 +41,6 @@ def calculate_sentiment():
 
 
 def calculate_sentiment_for_tweet(coin, tweet, client=AwsClient()):
-    print("Calculating sentiment for tweet", coin.name)
+    logger.info("Calculating sentiment for tweet", coin.name)
     sentiment = client.get_sentiment(text=tweet.text)
     assign_score(coin, tweet.date, sentiment, client.name)

@@ -2,8 +2,11 @@ import csv
 
 from app.jobs.populate_sentiment_for_input_job import calculate_sentiment_for_tweet
 from app.scraper.twitter.search_tweets_for_input import get_tweet_for_input
-from app.models import ScrapedData, db, InputData
+from app.database.models import ScrapedData, InputData
 import logging
+
+from app.services import database_service
+
 MAX_TWEETS = 400
 
 
@@ -12,6 +15,7 @@ def scrape_twitter_from_db(date):
     if coins is None:
         pass
     for coin in coins:
+        calculate_score_for_tweet(coin, date)
         calculate_score_for_tweet(coin, date)
 
 
@@ -43,12 +47,11 @@ def create_scraped_data_record(tweets, input_data):
         text_data = " ".join(filter(lambda x: x[0] != '@', text_data.split()))
         if len(text_data) > 260:
             text_data = text_data[0:260]
-        scraped_data = ScrapedData(text=text_data,
-                                   date=tweet["created_at"],
-                                   source=source,
-                                   input_data=input_data.id)
-        db.session.add(scraped_data)
-        db.session.commit()
+        database_service.create_and_save_scrape_data(input_data, source, text_data, tweet)
+
+
+
+
 
 
 ## Get data from csv

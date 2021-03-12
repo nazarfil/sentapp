@@ -2,7 +2,7 @@ import csv
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from app.models import db, InputData
+from app.database.models import db, InputData
 from datetime import date
 
 
