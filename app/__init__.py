@@ -1,14 +1,11 @@
-from sqlite3 import ProgrammingError
-
 from flask_migrate import Migrate
-
-from sqlalchemy_utils import create_view
 from .jobs.calculate_mean_socre import mean_score_from_csv, hype_score_from_csv
 from .models import db, SentimentMeanScore, InputData, SentimentHypeScore
 from app.jobs.populate_input_data import populate_db_from_csv, update_populate_db
 from app.jobs.twitter_scrape_job import scrape_twitter_from_csv
 from app.jobs.populate_sentiment_for_input import calculate_sentiment
-from .routes import bp
+from .manage_api import manage_bp
+from .client_api import client_bp
 import app.services.database_service as db_service
 from flask import Flask
 from app.config import Config
@@ -25,10 +22,10 @@ def init_app():
     db.init_app(app)
     migrate.init_app(app, db)
     with app.app_context():
-        app.register_blueprint(bp)
-
-        #statement = db_service.create_view_statement(db)
-        #create_view('table_view_max', statement, db.metadata)
-        # db.create_all()
-
+        app.register_blueprint(client_bp)
+        app.register_blueprint(manage_bp)
+        try :
+            db.create_all()
+        except :
+            print("Failed to recreat tables")
         return app

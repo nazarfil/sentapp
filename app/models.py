@@ -35,6 +35,35 @@ class InputData(db.Model):
                     market_cap= self.market_cap
                     )
 
+
+class FinancialData(db.Model):
+    __tablename__ = 'financial_data'
+    id = db.Column(db.Integer, primary_key=True)
+    input_data = db.Column(db.Integer, db.ForeignKey('input_data.id'))
+    price = db.Column(db.Numeric)
+    market_cap = db.Column(db.Numeric)
+    date = db.Column(db.Date)
+    volume = db.Column(db.Numeric)
+
+
+    def __init__(self, **kwargs):
+        super(FinancialData, self).__init__(**kwargs)
+        # do custom stuff
+
+    def __repr__(self):
+        return '<FinancialData {}>'.format(self.text)
+
+    @property
+    def serialized(self):
+        """Return object data in serializeable format"""
+        return dict(id=self.id,
+                    volume=self.volume,
+                    date=self.date,
+                    price=self.price,
+                    market_cap=self.market_cap,
+                    input_data=self.input_data)
+
+
 class ScrapedData(db.Model):
     __tablename__ = 'scraped_data'
     id = db.Column(db.Integer, primary_key=True)

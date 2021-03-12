@@ -1,8 +1,9 @@
 # attaches the view to the metadata using the select statement
-from app.models import db
+from sqlalchemy.ext.declarative import declarative_base
 
+Base = declarative_base()
 
-class TableView(db.Model):
+class TableView(Base):
     __tablename__ = 'table_view_max'
     name = db.Column(db.String(32), primary_key=True)
     ticker = db.Column(db.String(32))
