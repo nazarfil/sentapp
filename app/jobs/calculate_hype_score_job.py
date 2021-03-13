@@ -8,7 +8,7 @@ from app.utility.formats import foramt_Y_M_D
 
 
 def calculate_mean_score(date, in_name):
-    logging.info("Calculating mean score for ", in_name)
+    logging.info("Calculating mean score for {}".format(in_name))
     input_data = InputData.query.filter_by(name=in_name).first()
     avg_positive = (db.session.query(func.avg(SentimentScore.positive).label('positive'))
                     .filter(SentimentScore.date == date, SentimentScore.input_data == input_data.id).first(),
@@ -45,7 +45,7 @@ def mean_score_from_csv():
 
 
 def calculate_hype_score(date, input_data_id):
-    logging.info("Calculating hype score for", input_data_id)
+    logging.info("Calculating hype score for {}".format(input_data_id))
     sum_positive = (db.session.query(func.sum(SentimentScore.positive).label('positive'))
                     .filter(SentimentScore.date == date, SentimentScore.input_data == input_data_id).first(),
                     "POSITIVE")

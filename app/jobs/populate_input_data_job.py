@@ -2,7 +2,7 @@ import csv
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from app.database.models import db, InputData
+from app.database.models import db, InputData, FinancialData
 from datetime import date
 
 
@@ -27,9 +27,10 @@ def populate_db_api(row):
         existing.market_cap = row['market_cap']
         existing.source=source
     except NoResultFound:
-        new_record = InputData(order=row['id'], name=row['name'], ticker=row['ticker'],
-                               price=row['price'], market_cap=row['market_cap'], date=today, source=source)
-        db.session.add(new_record)
+        new_input_data = InputData(order=row['id'], name=row['name'], ticker=row['ticker'],
+                               date=today, source=source)
+        db.session.add(new_input_data)
+        new_financial_data = FinancialData()
     db.session.commit()
 
 

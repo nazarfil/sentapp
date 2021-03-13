@@ -4,6 +4,7 @@ from sqlite3 import ProgrammingError
 from flask_migrate import Migrate
 from sqlalchemy_utils import create_view
 
+from .database.view import create_view_statement
 from .jobs.calculate_hype_score_job import mean_score_from_csv, hype_score_from_csv
 from .database.models import db
 from app.jobs.populate_input_data_job import populate_db_from_csv, update_populate_db
@@ -12,6 +13,7 @@ from app.jobs.populate_sentiment_for_input_job import calculate_sentiment
 from app.api.manage_api import manage_bp
 from app.api.client_api import client_bp
 import app.services.database_service as db_service
+
 from flask import Flask
 from app.config import Config
 
@@ -45,7 +47,7 @@ def create_tables():
 
 def create_views():
     try:
-        statement = db_service.create_view_statement(db)
+        statement = create_view_statement(db)
         create_view('table_view', statement, db.metadata)
     except ProgrammingError:
         logger.error("View already exists")

@@ -27,7 +27,7 @@ def scrape_twitter_from_db_coin(name, date):
 
 
 def calculate_score_for_tweet(coin, date, token="none"):
-    logging.info("Calculating score for ", coin.name)
+    logging.info("Calculating score for {} ".format(coin.name))
     tweets = get_tweet_for_input(coin, input_date=date, next_token=token)
     if tweets["meta"]["result_count"] > 0:
         tweets_records = create_scraped_data_records(tweets, coin)
@@ -41,7 +41,7 @@ def calculate_score_for_tweet(coin, date, token="none"):
 
 def create_scraped_data_record(tweets, input_data):
     source = "twitter"
-    logging.info("Adding record with ", input_data.id, " from ", source)
+    logging.info("Adding record with  {} from {}".format(input_data.id, source))
     for tweet in tweets["data"]:
         text_data = tweet["text"]
         text_data = " ".join(filter(lambda x: x[0] != '@', text_data.split()))
@@ -65,7 +65,7 @@ def scrape_twitter_from_csv():
             input_data = InputData.query.filter_by(name=row["name"]).first()
             if input_data is None:
                 continue
-            logging.info(input_data.name, " is : ", input_data.id)
+            logging.info("{} is : {}".format(input_data.name,input_data.id))
             tweets = get_tweet_for_input(input_data=input_data, input_date=row["date"])
             create_scraped_data_record(tweets, input_data)
             there_is_next_token = "next_token" in tweets["meta"]
@@ -82,7 +82,7 @@ def scrape_twitter_from_csv():
 
 def create_scraped_data_records(tweets, coin):
     source = "twitter"
-    logging.info("Adding record with ", coin.id, " from ", source)
+    logging.info("Adding record with {} from {} ".format(coin.id, source))
     twees_list = []
     for tweet in tweets["data"]:
         text_data = tweet["text"]

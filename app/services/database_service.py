@@ -1,6 +1,5 @@
 from multiprocessing import Process
 
-from sqlalchemy.sql import func
 from app.utility.paint import draw_graphs
 from app.database.view import TableView
 from app.database.models import *
@@ -31,33 +30,9 @@ def query_join_input_and_sentiment_by_name(name):
         InputData.name == name).all()
 
 
-def query_sentiment_mean_score_for_coin(name):
-    return db.session.query(InputData, SentimentMeanScore).join(SentimentMeanScore).filter(
-        InputData.name == name).all()
-
-
 def query_table_view():
     return db.session.query(TableView).filter(TableView.relative_hype is not None).all()
 
-
-def create_view_statement(db_instance):
-    subq1 = db_instance.session.query(SentimentHypeScore.input_data.label("input_id"),
-                                      func.max(SentimentHypeScore.date).label("max_date")).group_by(
-        SentimentHypeScore.input_data).subquery()
-    q2 = db_instance.session.query(
-        SentimentHypeScore.relative_hype,
-        SentimentHypeScore.absolute_hype,
-        SentimentHypeScore.count,
-        SentimentHypeScore.date,
-        SentimentHypeScore.input_data) \
-        .select_from(SentimentHypeScore.__table__.
-                     join(subq1,
-                          (SentimentHypeScore.date == subq1.c.max_date)
-                          &
-                          (SentimentHypeScore.input_data == subq1.c.input_id))) \
-        .subquery()
-    return db_instance.select([q2, InputData.ticker, InputData.name]).where(
-        InputData.id == q2.c.input_data)
 
 
 def get_history_score(name, start_date, end_date, graph_types):
