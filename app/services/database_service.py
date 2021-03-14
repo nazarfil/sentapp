@@ -4,6 +4,7 @@ from app.utility.paint import draw_graphs
 from app.database.view import TableView
 from app.database.models import *
 
+
 def create_and_save_scrape_data(input_data, source, text_data, tweet):
     scraped_data = ScrapedData(text=text_data,
                                date=tweet["created_at"],
@@ -32,7 +33,6 @@ def query_join_input_and_sentiment_by_name(name):
 
 def query_table_view():
     return db.session.query(TableView).filter(TableView.relative_hype is not None).all()
-
 
 
 def get_history_score(name, start_date, end_date, graph_types):
@@ -77,3 +77,13 @@ def get_long_scores():
     p2.start()
     p2.join()
     return all_scores
+
+
+def create_financial_record(price=None, market_cap=None, the_date=None, volume=None, input_data=None):
+    record = FinancialData(price=price,
+                           market_cap=market_cap,
+                           date=the_date,
+                           volume=volume,
+                           input_data=input_data)
+    db.session.add(record)
+    db.session.commit()
