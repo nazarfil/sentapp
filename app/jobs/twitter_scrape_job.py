@@ -16,7 +16,6 @@ def scrape_twitter_from_db(date):
         pass
     for coin in coins:
         calculate_score_for_tweet(coin, date)
-        calculate_score_for_tweet(coin, date)
 
 
 def scrape_twitter_from_db_coin(name, date):
