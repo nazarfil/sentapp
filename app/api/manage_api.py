@@ -85,7 +85,8 @@ def calculate_financial_history():
 def calculate_financial_history_all():
     #start_date = request.args.get('start_date', default=today, type=str)
     #end_date = request.args.get('end_date', default=today, type=str)
-    price_job.populate_price_and_market_cap()
+    start_arg = request.args.get('start_id', default=0, type=int)
+    price_job.populate_price_and_market_cap(start_arg)
     return jsonify({'status': "Request was processed"})
 
 

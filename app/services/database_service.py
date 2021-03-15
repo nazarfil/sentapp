@@ -1,5 +1,7 @@
 from multiprocessing import Process
 
+from sqlalchemy.orm.exc import NoResultFound
+
 from app.utility.paint import draw_graphs
 from app.database.view import TableView
 from app.database.models import *
@@ -80,10 +82,14 @@ def get_long_scores():
 
 
 def create_financial_record(price=None, market_cap=None, the_date=None, volume=None, input_data=None):
-    record = FinancialData(price=price,
-                           market_cap=market_cap,
-                           date=the_date,
-                           volume=volume,
-                           input_data=input_data)
-    db.session.add(record)
-    db.session.commit()
+    try:
+        existing = db.session.query(FinancialData).filter_by(input_data=input_data, date=the_date).one()
+        pass
+    except NoResultFound:
+        record = FinancialData(price=price,
+                               market_cap=market_cap,
+                               date=the_date,
+                               volume=volume,
+                               input_data=input_data)
+        db.session.add(record)
+        db.session.commit()

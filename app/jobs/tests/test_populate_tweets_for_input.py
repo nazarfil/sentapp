@@ -1,6 +1,7 @@
 from app.scraper.twitter.search_tweets_for_input import *
 import unittest
 
+
 class TestTweeterApiQuery(unittest.TestCase):
     def test_date_formatter(self):
         input_date = '2021-02-19'
@@ -15,7 +16,7 @@ class TestTweeterApiQuery(unittest.TestCase):
         self.assertEqual("2021-02-24T23:59:59Z", result_end)
 
     def test_day_not_in_range(self):
-        date_in =  "2020-12-20"
+        date_in = "2020-12-20"
         in_range = check_if_date_in_range(date_in, 7)
         self.assertFalse(in_range)
 
