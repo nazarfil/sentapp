@@ -1,3 +1,5 @@
+from celery import Celery
+
 from . import log
 from sqlite3 import ProgrammingError
 
@@ -16,9 +18,11 @@ import app.services.database_service as db_service
 
 from flask import Flask
 from app.config import Config
+from app.tasks.background_task import run_scheduled_tasks
 
 migrate = Migrate()
 logger = log.setup_custom_logger('app')
+
 
 def init_app():
     """Construct the core application."""
@@ -28,6 +32,7 @@ def init_app():
     app.config.from_object(config)
     db.init_app(app)
     migrate.init_app(app, db)
+
     with app.app_context():
         app.register_blueprint(client_bp)
         app.register_blueprint(manage_bp)
@@ -35,6 +40,7 @@ def init_app():
         # Create database views and tables
         create_views()
         create_tables()
+        run_scheduled_tasks()
         return app
 
 
@@ -51,3 +57,4 @@ def create_views():
         create_view('table_view', statement, db.metadata)
     except ProgrammingError:
         logger.error("View already exists")
+

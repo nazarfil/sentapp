@@ -19,5 +19,4 @@ COPY static /sentapp
 RUN pip3 install -r requirements.txt
 
 # Run app.py when the container launches
-COPY wsgi.py /sentapp
 CMD python wsgi.py

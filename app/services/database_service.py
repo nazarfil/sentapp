@@ -39,7 +39,7 @@ def query_table_view():
 
 def get_history_score(name, start_date, end_date, graph_types):
     types = graph_types.split(",")
-    available_type = ["absolute_hype", "relative_hype", "tweets_count"]
+    available_type = ["absolute_hype", "relative_hype", "count"]
     coin = InputData.query.filter(InputData.name == name).first()
     scores = []
     result = {

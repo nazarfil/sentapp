@@ -6,6 +6,21 @@ from app.database.models import db, InputData, FinancialData
 from datetime import date
 
 
+def populate_db_api(row, source):
+    today = date.today()
+    try:
+        existing = db.session.query(InputData).filter_by(name=row['name']).one()
+        existing.price = row['price']
+        existing.market_cap = row['market_cap']
+        existing.source = source
+    except NoResultFound:
+        new_input_data = InputData(order=row['id'], name=row['name'], ticker=row['ticker'],
+                                   date=today, source=source)
+        db.session.add(new_input_data)
+        new_financial_data = FinancialData()
+    db.session.commit()
+
+
 def populate_db_from_csv():
     csv_url = "./app/utility/cryptocurrencies_2021-02-20.csv"
     with open(csv_url, newline='') as csv_file:
@@ -16,22 +31,6 @@ def populate_db_from_csv():
             new_record = InputData(order=row['id'], name=row['name'], ticker=row['ticker'], date=today, source=source)
             db.session.add(new_record)
             db.session.commit()
-
-
-def populate_db_api(row):
-    today = date.today()
-    source = 'api'
-    try:
-        existing = db.session.query(InputData).filter_by(name=row['name']).one()
-        existing.price = row['price']
-        existing.market_cap = row['market_cap']
-        existing.source=source
-    except NoResultFound:
-        new_input_data = InputData(order=row['id'], name=row['name'], ticker=row['ticker'],
-                               date=today, source=source)
-        db.session.add(new_input_data)
-        new_financial_data = FinancialData()
-    db.session.commit()
 
 
 def update_populate_db():

@@ -36,7 +36,7 @@ def refresh_coins():
         logging.info("Refreshing coins data")
         coins = extract_to_mem()
         for coin in coins:
-            populate_db_api(coin)
+            populate_db_api(coin, 'api')
     except:
         logging.error("Unable to refresh coins data")
     return jsonify({'status': "Request was processed"})

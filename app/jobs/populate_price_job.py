@@ -13,6 +13,35 @@ cg = CgService()
 logger = log.setup_custom_logger('services')
 
 
+def populate_price_and_market_cap(start_id):
+    coins = InputData.query.filter(InputData.id > start_id).order_by(InputData.id).all()
+    dates = db.session.query(SentimentHypeScore.date).distinct().order_by(SentimentHypeScore.date.desc()).all()
+    for coin in coins:
+        coin_name = coin.name
+        max_date = db.session.query(func.max(distinct(FinancialData.date))).filter(
+            FinancialData.input_data == coin.id).first()
+        if (max_date[0] is not None):
+            for date in dates:
+                if date > max_date:
+                    create_financial_data_for_date(coin, coin_name, date)
+
+
+def create_financial_data_for_date(coin, coin_name, date):
+    history = cg.get_coin_history(coin_name=coin_name, history_date=date[0].strftime(foramt_D_M_Y))
+    if history is not None:
+        logger.info("Filling in history for " + str(coin_name))
+        try:
+            price_day = history['market_data']['current_price']['usd']
+            market_cap = history['market_data']['market_cap']['usd']
+            volume = history['market_data']['total_volume']['usd']
+            create_financial_record(price=price_day, market_cap=market_cap, the_date=date[0], volume=volume,
+                                    input_data=coin.id)
+        except:
+            logger.error("Could not fill in history for " + str(coin_name))
+    else:
+        logger.error("Could not query history for " + str(coin_name))
+
+
 def get_score_max_date():
     return db.session.query(func.max(distinct(SentimentHypeScore.date))).first()
 
@@ -40,36 +69,6 @@ def populate_prices_history():
         else:
             for price in historical_prices['Data']['Data']:
                 print(price)
-
-
-def populate_price_and_market_cap(start_id):
-    coins = InputData.query.filter(InputData.id > start_id).order_by(InputData.id).all()
-    dates = db.session.query(SentimentHypeScore.date).distinct().order_by(SentimentHypeScore.date.desc()).all()
-    for coin in coins:
-        coin_name = coin.name
-        max_date = db.session.query(func.max(distinct(FinancialData.date))).filter(FinancialData.input_data == coin.id).first()
-        if(max_date[0] is not None):
-            for date in dates:
-                if date > max_date:
-                    create_financial_data_for_date(coin, coin_name, date)
-
-
-
-
-def create_financial_data_for_date(coin, coin_name, date):
-    history = cg.get_coin_history(coin_name=coin_name, history_date=date[0].strftime(foramt_D_M_Y))
-    if history is not None:
-        logger.info("Filling in history for " + str(coin_name))
-        try:
-            price_day = history['market_data']['current_price']['usd']
-            market_cap = history['market_data']['market_cap']['usd']
-            volume = history['market_data']['total_volume']['usd']
-            create_financial_record(price=price_day, market_cap=market_cap, the_date=date[0], volume=volume,
-                                    input_data=coin.id)
-        except:
-            logger.error("Could not fill in history for " + str(coin_name))
-    else:
-        logger.error("Could not query history for " + str(coin_name))
 
 
 def date_to_timestamp(dt):
