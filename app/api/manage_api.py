@@ -8,7 +8,7 @@ from app.jobs.calculate_hype_score_job import hype_score_for_coin, hype_score_fo
 from app.jobs.populate_input_data_job import populate_db_api
 import app.jobs.populate_price_job as price_job
 from app.jobs.twitter_scrape_job import scrape_twitter_from_db, scrape_twitter_from_db_coin
-from app.jobs.update_count import update_score_count
+from app.jobs.update_database import update_score_count, update_string_id
 from app.scraper.coinmarketcap.coinmarketcap_scraper import extract_to_mem
 from app.utility.formats import foramt_Y_M_D
 from flask import request
@@ -97,3 +97,8 @@ def update_count():
     update_score_count()
     return jsonify({'status': "Request was processed"})
 
+
+@manage_bp.route('update_id', methods=["POST"])
+def update_id():
+    update_string_id()
+    return jsonify({'status': "Request was processed"})

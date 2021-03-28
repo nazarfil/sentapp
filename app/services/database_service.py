@@ -1,5 +1,7 @@
 from multiprocessing import Process
 
+from flask import jsonify
+from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
 from app.utility.paint import draw_graphs
@@ -35,6 +37,23 @@ def query_join_input_and_sentiment_by_name(name):
 
 def query_table_view():
     return db.session.query(TableView).filter(TableView.relative_hype is not None).all()
+
+
+def get_min_max_score():
+    max_abs =  db.session.query(TableView).order_by(TableView.absolute_hype.desc()).first()
+    min_abs =  db.session.query(TableView).order_by(TableView.absolute_hype.desc()).first()
+    max_rel =  db.session.query(TableView).order_by(TableView.relative_hype.desc()).first()
+    min_rel =  db.session.query(TableView).order_by(TableView.relative_hype.desc()).first()
+    max_count = db.session.query(TableView).order_by(TableView.count.desc()).first()
+    min_count = db.session.query(TableView).order_by(TableView.count.desc()).first()
+    return {
+        "max_absolute_hype": (max_abs.serialized),
+        "min_absolute_hype": (min_abs.serialized),
+        "max_relative_hype": (max_rel.serialized),
+        "min_relative_hype": (min_rel.serialized),
+        "max_count": (max_count.serialized),
+        "min_count": (min_count.serialized)
+    }
 
 
 def get_history_score(name, start_date, end_date, graph_types):

@@ -1,9 +1,14 @@
 
 import matplotlib.dates as mdates
-import matplotlib.pyplot as plt
+import matplotlib as mpl
 import pandas as pd
+import numpy as np
 
-def draw_graphs(all_scores, name,path="static/images"):
+mpl.use('Agg')
+
+import matplotlib.pyplot as plt
+
+def draw_graphs(all_scores, name, path="static/images"):
     fig, ax = plt.subplots()
     num_colors = 4
     cm = plt.get_cmap('Dark2')
@@ -28,4 +33,14 @@ def draw_graphs(all_scores, name,path="static/images"):
     fig.autofmt_xdate()
     fig.savefig(filename, bbox_inches='tight')
     # format the ticks
+    plt.close(fig)
+
+
+def draw_sparkline(points, name, path="static/images"):
+    filename = '{}/{}.png'.format(path, name)
+    arr = np.array(points)
+    fig, ax = plt.subplots(1,1,figsize=(3,1))
+    plt.plot(arr, '-')
+    plt.axis('off')
+    fig.savefig(filename, bbox_inches='tight')
     plt.close(fig)

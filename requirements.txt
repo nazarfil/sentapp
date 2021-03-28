@@ -45,3 +45,4 @@ flask_httpauth~=4.2.0
 pycoingecko~=1.4.0
 APScheduler~=3.7.0
 celery~=5.0.5
+numpy~=1.20.1

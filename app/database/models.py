@@ -12,7 +12,7 @@ class InputData(db.Model):
     date = db.Column(db.Date)
     ticker = db.Column(db.String(32))
     order = db.Column(db.Integer)
-
+    string_id = db.Column(db.String(32))
     def __init__(self, **kwargs):
         super(InputData, self).__init__(**kwargs)
         # do custom stuff
@@ -23,7 +23,7 @@ class InputData(db.Model):
     @property
     def serialized(self):
         """Return object data in serializeable format"""
-        return dict(id=self.id,
+        return dict(id=self.string_id,
                     name=self.name,
                     date=self.date,
                     source=self.source,
@@ -111,9 +111,12 @@ class SentimentHypeScore(db.Model):
     __tablename__ = 'sentiment_hype_score'
     id = db.Column(db.Integer, primary_key=True)
     input_data = db.Column(db.Integer, db.ForeignKey('input_data.id'))
-    absolute_hype = db.Column(db.Numeric, )
+    absolute_hype = db.Column(db.Numeric)
+    absolute_hype_24delta = db.Column(db.Numeric)
     relative_hype = db.Column(db.Numeric)
+    relative_hype_24delta = db.Column(db.Numeric)
     count = db.Column(db.Integer)
+    count_24delta = db.Column(db.Integer)
     date = db.Column(db.Date)
 
     def __init__(self, **kwargs):
@@ -132,5 +135,6 @@ class SentimentHypeScore(db.Model):
                     count=float(self.count),
                     date=self.date_to_timestamp(self.date))
 
-    def date_to_timestamp(self, dt):
+    @staticmethod
+    def date_to_timestamp(dt):
         return (dt - datetime(1970, 1, 1, tzinfo=timezone.utc).date()) / timedelta(milliseconds=1)
