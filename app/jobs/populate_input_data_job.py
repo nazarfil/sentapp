@@ -5,21 +5,33 @@ from sqlalchemy.orm.exc import NoResultFound
 from app.database.models import db, InputData, FinancialData
 from datetime import date
 
+from app.scraper.coingecko.cg_service import CgService
+
+cg = CgService()
 
 def populate_db_api(row, source):
     today = date.today()
     try:
         existing = db.session.query(InputData).filter_by(name=row['name']).one()
-        existing.price = row['price']
-        existing.market_cap = row['market_cap']
-        existing.source = source
+        existing.order = row['id']
+        string_id = find_string_id(existing.name)
+        existing.string_id = string_id
+
     except NoResultFound:
         new_input_data = InputData(order=row['id'], name=row['name'], ticker=row['ticker'],
                                    date=today, source=source)
+        string_id = find_string_id(new_input_data.name)
+        new_input_data.string_id = string_id
         db.session.add(new_input_data)
-        new_financial_data = FinancialData()
+
     db.session.commit()
 
+def find_string_id(name):
+    string_id = cg.find_id(name)
+    if string_id is not None:
+        return string_id
+    else:
+       return name
 
 def populate_db_from_csv():
     csv_url = "./app/utility/cryptocurrencies_2021-02-20.csv"

@@ -13,12 +13,6 @@ client_bp = Blueprint('/api', __name__, url_prefix='/api')
 
 
 # CLIENT API
-@client_bp.route('calculate_score', methods=['POST'])
-def calculate_score():
-    query = {"data": "not_suppeorted_yet"}
-    return query
-
-
 @client_bp.route('coins', methods=['GET'])
 def get_coins():
     page = request.args.get('page', default=1, type=int)

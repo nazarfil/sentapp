@@ -4,13 +4,13 @@ from app import log
 
 url_for_recent_tweets = "https://api.twitter.com/2/tweets/search/recent?query={}&{}"
 BT = environ.get("TWITTER_TOKEN")
-
 logger = log.setup_custom_logger('scraper')
 
 
 # define search twitter function
 def search_twitter(query, **kwargs):
     global response
+    max_calls = 3
     headers = {"Authorization": "Bearer {}".format(BT)}
     fields_to_return = "tweet.fields=text,author_id,created_at"
     url = url_for_recent_tweets.format(query, fields_to_return)
@@ -18,10 +18,13 @@ def search_twitter(query, **kwargs):
         url = url + "&{}={}".format(key, str(value))
     status_code = 429
     logger.debug("Calling twitter with request {}".format(url))
-    while status_code != 200:
+    calls_count = 0
+    while status_code != 200 and calls_count < max_calls:
         response = requests.request("GET", url, headers=headers)
-        logger.debug("Calling twitter resulted in : {}".format(response.status_code))
         if response.status_code == 429 or response.status_code == 400:
-            time.sleep(180)
+            logger.debug("Calling twitter resulted in : {}".format(response.status_code))
+            time.sleep(2)
         status_code = response.status_code
+        calls_count+=1
+
     return response.json()

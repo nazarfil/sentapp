@@ -41,6 +41,5 @@ def calculate_sentiment():
 
 
 def calculate_sentiment_for_tweet(coin, tweet, client=AwsClient()):
-    logger.info("Calculating sentiment for tweet", coin.name)
     sentiment = client.get_sentiment(text=tweet.text)
     assign_score(coin, tweet.date, sentiment, client.name)

@@ -1,5 +1,7 @@
 from datetime import datetime, timezone, timedelta
 
+from sqlalchemy.orm.exc import NoResultFound
+
 from app import log
 from app.database.models import InputData, SentimentHypeScore, db, FinancialData
 from sqlalchemy import func, distinct
@@ -20,26 +22,43 @@ def populate_price_and_market_cap(start_id):
         coin_name = coin.name
         max_date = db.session.query(func.max(distinct(FinancialData.date))).filter(
             FinancialData.input_data == coin.id).first()
-        if (max_date[0] is not None):
+        if max_date[0] is not None:
             for date in dates:
                 if date > max_date:
-                    create_financial_data_for_date(coin, coin_name, date)
+                    create_financial_data_for_date(coin, coin_name, date[0])
 
 
 def create_financial_data_for_date(coin, coin_name, date):
-    history = cg.get_coin_history(coin_name=coin_name, history_date=date[0].strftime(foramt_D_M_Y))
+    history = cg.get_coin_history(coin_name=coin_name, history_date=date.strftime(foramt_D_M_Y))
     if history is not None:
         logger.info("Filling in history for " + str(coin_name))
         try:
             price_day = history['market_data']['current_price']['usd']
             market_cap = history['market_data']['market_cap']['usd']
             volume = history['market_data']['total_volume']['usd']
-            create_financial_record(price=price_day, market_cap=market_cap, the_date=date[0], volume=volume,
+            create_financial_record(price=price_day, market_cap=market_cap, the_date=date, volume=volume,
                                     input_data=coin.id)
         except:
             logger.error("Could not fill in history for " + str(coin_name))
     else:
         logger.error("Could not query history for " + str(coin_name))
+
+
+def create_financial_record_for_coins(coins, date):
+    coin_ids = ""
+    for coin in coins:
+        coin_ids = coin_ids + coin.string_id + ","
+    coin_ids = coin_ids[:-1]
+    cg_prices = cg.get_price(coin_ids)
+    for coin in coins:
+        if coin.string_id in cg_prices.keys():
+            data = cg_prices[coin.string_id]
+            usd_price = data['usd']
+            usd_market = data['usd_market_cap']
+            usd_vol = data['usd_24h_vol']
+            create_financial_record(usd_price, usd_market, date, usd_vol, coin.id)
+        else:
+            logger.warn("No CoingeckoId for : {}".format(coin.name))
 
 
 def get_score_max_date():

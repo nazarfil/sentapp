@@ -5,13 +5,25 @@ from app.utility.formats import *
 
 
 def get_tweet_for_input(input_data, input_date, next_token='none'):
-    query = "{} or {} or {} or {} and -is:retweet".format(input_data.name, input_data.ticker, input_data.name.lower(),
-                                                          input_data.ticker.lower())
+    query = build_tweet_query(input_data)
     start, end = get_datetime_from_string(input_date)
     if next_token == 'none':
         return search_twitter(query=query, start_time=start, end_time=end)
     else:
         return search_twitter(query=query, start_time=start, end_time=end, next_token=next_token)
+
+
+def get_tweets_for_range(input_data, start_date, end_date, next_token):
+    query = build_tweet_query(input_data)
+    if next_token == 'none':
+        return search_twitter(query=query, start_time=start_date, end_time=end_date)
+    else:
+        return search_twitter(query=query, start_time=start_date, end_time=end_date, next_token=next_token)
+
+
+def build_tweet_query(input_data):
+    return "{} or {} or {} or {} and -is:retweet".format(input_data.name, input_data.ticker, input_data.name.lower(),
+                                                         input_data.ticker.lower())
 
 
 def get_datetime_from_string(date):

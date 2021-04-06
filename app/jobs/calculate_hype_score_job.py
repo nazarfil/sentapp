@@ -1,12 +1,16 @@
 from datetime import datetime, timedelta
 
+from sqlalchemy import distinct
+
 from app.database.models import SentimentScore, db, InputData, SentimentHypeScore
 from sqlalchemy.sql import func
 import csv
 
 from app.log import setup_custom_logger
 from app.utility.formats import foramt_Y_M_D
+
 logger = setup_custom_logger("jobs")
+
 
 def calculate_hype_score(date, input_data_id):
     logger.info("Calculating hype score for {}".format(input_data_id))
@@ -81,3 +85,4 @@ def hype_score_for_all_coins():
         for date in dates:
             date_str = date[0].strftime(foramt_Y_M_D)
             calculate_hype_score(date_str, input_data_id=data_id[0])
+

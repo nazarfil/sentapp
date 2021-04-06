@@ -17,5 +17,8 @@ class CgService(object):
 
     def find_id(self, name):
         for coin in self.coin_list:
-            if coin['name'] == name:
+            if coin['name'] == name or coin['name'].lower() == name.lower() or coin['symbol'].lower() == name.lower():
                 return coin['id']
+
+    def get_price(self, ids):
+        return self.cg.get_price(ids=ids, vs_currencies='usd', include_market_cap='true', include_24hr_vol='true')
