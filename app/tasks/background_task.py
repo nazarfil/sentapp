@@ -41,8 +41,8 @@ def periodical_refresh():
 
 def run_scheduled_tasks():
     scheduler = BackgroundScheduler()
-    #scheduler.add_job(func=scrape_marketcap, trigger="cron", hour='*', minute='35')
-    #scheduler.add_job(func=periodical_refresh, trigger="cron", hour='*', minute='0,15,30,45')
+    scheduler.add_job(func=scrape_marketcap, trigger="cron", hour='*', minute='35')
+    scheduler.add_job(func=periodical_refresh, trigger="cron", hour='*', minute='0,15,30,45')
     #scheduler.add_job(func=scrape_twitter_and_add_scores, trigger="cron", day='*', hour=23, minute=1, second=0)
     #scheduler.add_job(func=recalculate_hype, trigger="cron", day='*', hour=0, minute=1, second=0)
     #scheduler.add_job(func=recalculate_financial_history, trigger="cron", day='*', hour=0, minute=10, second=0)
