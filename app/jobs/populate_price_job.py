@@ -47,7 +47,8 @@ def create_financial_data_for_date(coin, coin_name, date):
 def create_financial_record_for_coins(coins, date):
     coin_ids = ""
     for coin in coins:
-        coin_ids = coin_ids + coin.string_id + ","
+        if coin.string_id is not None:
+            coin_ids = coin_ids + coin.string_id + ","
     coin_ids = coin_ids[:-1]
     cg_prices = cg.get_price(coin_ids)
     for coin in coins:

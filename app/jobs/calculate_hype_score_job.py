@@ -59,7 +59,16 @@ def calculate_hype_score(date, input_data_id):
         existing = db.session.query(SentimentHypeScore).filter_by(input_data=input_data_id, date=date).first()
         if existing is None:
             db.session.add(hype_record)
-            db.session.commit()
+        else:
+            existing.input_data = input_data_id
+            existing.absolute_hype = absolute_hype
+            existing.absolute_hype_24delta = delta_abs_hype
+            existing.relative_hype = relative_hype
+            existing.relative_hype_24delta = delta_rel_hype
+            existing.count = count_today
+            existing.count_24delta = delta_count
+            existing.date = date
+        db.session.commit()
 
 
 def hype_score_from_csv():

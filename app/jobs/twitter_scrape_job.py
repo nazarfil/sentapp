@@ -8,12 +8,12 @@ from app.jobs.populate_sentiment_for_input_job import calculate_sentiment_for_tw
 from app.scraper.twitter.search_tweets_for_input import get_tweet_for_input, get_tweets_for_range, format_T_H_M_S_ZZ
 from app.database.models import ScrapedData, InputData
 
-
 from app.services import database_service
 from app.utility.formats import foramt_Y_M_D
 
 MAX_TWEETS = 400
 logger = log.setup_custom_logger('jobs')
+
 
 def scrape_twitter_from_db(date):
     coins = InputData.query.all()
@@ -33,13 +33,12 @@ def scrape_twitter_from_db_range():
     end_date = back_15min.strftime(format_T_H_M_S_ZZ) + 'Z'
     date_str = back_15min.strftime(foramt_Y_M_D)
 
-    create_financial_record_for_coins(coins, date_str)
-
     for coin in coins:
         logger.info("Calculating score for {} ".format(coin.name))
         calculate_score_for_tweet_range(coin, start_date, end_date)
         calculate_hype_score(date_str, input_data_id=coin.id)
 
+    create_financial_record_for_coins(coins, date_str)
 
 
 def scrape_twitter_from_db_coin(name, date):
@@ -52,28 +51,33 @@ def scrape_twitter_from_db_coin(name, date):
 def calculate_score_for_tweet_range(coin, start_date, end_date, token="none"):
     logger.info("Calculating score for {} ".format(coin.name))
     tweets = get_tweets_for_range(coin, start_date, end_date, next_token=token)
-    if tweets["meta"]["result_count"] > 0:
-        tweets_records = create_scraped_data_records(tweets, coin)
-        for tr in tweets_records:
-            calculate_sentiment_for_tweet(coin, tr)
-        there_is_next_token = "next_token" in tweets["meta"]
-        if there_is_next_token:
-            token = tweets["meta"]["next_token"]
-            calculate_score_for_tweet_range(coin, start_date, end_date, token)
+    try:
+        if tweets["meta"]["result_count"] > 0:
+            tweets_records = create_scraped_data_records(tweets, coin)
+            for tr in tweets_records:
+                calculate_sentiment_for_tweet(coin, tr)
+            there_is_next_token = "next_token" in tweets["meta"]
+            if there_is_next_token:
+                token = tweets["meta"]["next_token"]
+                calculate_score_for_tweet_range(coin, start_date, end_date, token)
+    except:
+        logger.error("No results for " + str(coin.name))
 
 
 def calculate_score_for_tweet(coin, date, token="none"):
     logger.info("Calculating score for {} ".format(coin.name))
     tweets = get_tweet_for_input(coin, input_date=date, next_token=token)
-    if tweets["meta"]["result_count"] > 0:
-        tweets_records = create_scraped_data_records(tweets, coin)
-        for tr in tweets_records:
-            calculate_sentiment_for_tweet(coin, tr)
-        there_is_next_token = "next_token" in tweets["meta"]
-        if there_is_next_token:
-            token = tweets["meta"]["next_token"]
-            calculate_score_for_tweet(coin, date, token)
-
+    try:
+        if tweets["meta"]["result_count"] > 0:
+            tweets_records = create_scraped_data_records(tweets, coin)
+            for tr in tweets_records:
+                calculate_sentiment_for_tweet(coin, tr)
+            there_is_next_token = "next_token" in tweets["meta"]
+            if there_is_next_token:
+                token = tweets["meta"]["next_token"]
+                calculate_score_for_tweet(coin, date, token)
+    except:
+        logger.error("No results for " + str(coin.name))
 
 def create_scraped_data_record(tweets, input_data):
     source = "twitter"
