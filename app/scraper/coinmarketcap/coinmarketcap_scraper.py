@@ -68,7 +68,7 @@ def extract_to_mem():
             soup = BeautifulSoup(response.content, features='html.parser')
             sel = Selector(text=soup.prettify())
             cryptos = sel.xpath("//tr").extract()
-            cryptos2 = cryptos[3:53]
+            cryptos2 = cryptos[3:83]
             for crypto in cryptos2:
                 soup = BeautifulSoup(crypto, features='html.parser')
                 sel = Selector(text=soup.prettify())

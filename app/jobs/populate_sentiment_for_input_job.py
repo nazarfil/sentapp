@@ -7,6 +7,7 @@ import app.services.database_service as db_service
 BATCH_SIZE = 100
 logger = log.setup_custom_logger('services')
 
+
 def assign_score(input_data, date, sentiment, source):
     sentiment_record = SentimentScore(
         input_data=input_data.id,

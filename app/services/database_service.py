@@ -18,8 +18,8 @@ def create_and_save_scrape_data(input_data, source, text_data, tweet):
     db.session.commit()
 
 
-def query_input_data_paged(page, offset):
-    return InputData.query.paginate(page, offset, False).items
+def query_input_data_paged():
+    return InputData.query.all()
 
 
 def query_input_data(name):

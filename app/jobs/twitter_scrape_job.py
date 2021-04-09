@@ -90,32 +90,6 @@ def create_scraped_data_record(tweets, input_data):
         database_service.create_and_save_scrape_data(input_data, source, text_data, tweet)
 
 
-## Get data from csv
-def scrape_twitter_from_csv():
-    csv_url = "app/jobs/populate.csv"
-    logger.info("SCRAPING TWITTER -- ")
-    with open(csv_url, newline='') as csv_file:
-        reader = csv.DictReader(csv_file, delimiter=',')
-        for row in reader:
-            tweet_count = 1
-            input_data = InputData.query.filter_by(name=row["name"]).first()
-            if input_data is None:
-                continue
-            logger.info("{} is : {}".format(input_data.name, input_data.id))
-            tweets = get_tweet_for_input(input_data=input_data, input_date=row["date"])
-            create_scraped_data_record(tweets, input_data)
-            there_is_next_token = "next_token" in tweets["meta"]
-            if there_is_next_token:
-                token = tweets["meta"]["next_token"]
-            while there_is_next_token and tweet_count < MAX_TWEETS:
-                tweets = get_tweet_for_input(input_data=input_data, input_date=row["date"], next_token=token)
-                create_scraped_data_record(tweets, input_data)
-                there_is_next_token = "next_token" in tweets["meta"]
-                tweet_count += 1
-                if there_is_next_token:
-                    token = tweets["meta"]["next_token"]
-
-
 def create_scraped_data_records(tweets, coin):
     source = "twitter"
     logger.info("Adding record with {} from {} ".format(coin.id, source))

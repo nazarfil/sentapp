@@ -15,9 +15,7 @@ client_bp = Blueprint('/api', __name__, url_prefix='/api')
 # CLIENT API
 @client_bp.route('coins', methods=['GET'])
 def get_coins():
-    page = request.args.get('page', default=1, type=int)
-    offset = request.args.get('offset', default=10, type=int)
-    list_of_coins = db_service.query_input_data_paged(page, offset)
+    list_of_coins = db_service.query_input_data_paged()
     return jsonify({
         'data': [result.serialized for result in list_of_coins]
     })

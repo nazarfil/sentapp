@@ -7,10 +7,7 @@ from flask_migrate import Migrate
 from sqlalchemy_utils import create_view
 
 from .database.view import create_view_statement
-from .jobs.calculate_hype_score_job import hype_score_from_csv
 from .database.models import db
-from app.jobs.populate_input_data_job import populate_db_from_csv, update_populate_db
-from app.jobs.twitter_scrape_job import scrape_twitter_from_csv
 from app.jobs.populate_sentiment_for_input_job import calculate_sentiment
 from app.api.manage_api import manage_bp
 from app.api.client_api import client_bp
