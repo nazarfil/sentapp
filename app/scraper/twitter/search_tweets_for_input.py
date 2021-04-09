@@ -25,7 +25,6 @@ def build_tweet_query(input_data):
     return "{} or {} or {} or {} and -is:retweet".format(input_data.name, input_data.ticker, input_data.name.lower(),
                                                          input_data.ticker.lower())
 
-
 def get_datetime_from_string(date):
     start = "00:00:01Z"
     end = "23:59:59Z"

@@ -12,7 +12,7 @@ def search_twitter(query, **kwargs):
     global response
     max_calls = 3
     headers = {"Authorization": "Bearer {}".format(BT)}
-    fields_to_return = "tweet.fields=text,author_id,created_at"
+    fields_to_return = "tweet.fields=public_metrics,id,text,author_id,created_at&expansions=author_id&user.fields=public_metrics,id"
     url = url_for_recent_tweets.format(query, fields_to_return)
     for key, value in kwargs.items():
         url = url + "&{}={}".format(key, str(value))
@@ -23,7 +23,6 @@ def search_twitter(query, **kwargs):
         response = requests.request("GET", url, headers=headers)
         if response.status_code == 429 or response.status_code == 400:
             logger.debug("Calling twitter resulted in : {}".format(response.status_code))
-            time.sleep(2)
         status_code = response.status_code
         calls_count+=1
 

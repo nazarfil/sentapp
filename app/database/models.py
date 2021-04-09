@@ -13,6 +13,7 @@ class InputData(db.Model):
     ticker = db.Column(db.String(32))
     order = db.Column(db.Integer)
     string_id = db.Column(db.String(32))
+
     def __init__(self, **kwargs):
         super(InputData, self).__init__(**kwargs)
         # do custom stuff
@@ -65,9 +66,10 @@ class ScrapedData(db.Model):
     text = db.Column(db.String(260))
     date = db.Column(db.Date)
     source = db.Column(db.String(60))
+    source_id = db.Column(db.String(60))
     input_data = db.Column(db.Integer, db.ForeignKey('input_data.id'))
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> object:
         super(ScrapedData, self).__init__(**kwargs)
         # do custom stuff
 
@@ -77,7 +79,34 @@ class ScrapedData(db.Model):
     @property
     def serialized(self):
         """Return object data in serializeable format"""
-        return dict(id=self.id, text=self.text, date=self.date, source=self.source, input_data=self.input_data)
+        return dict(id=self.id, text=self.text, date=self.date, source=self.source, source_id=self.source_id,
+                    input_data=self.input_data)
+
+
+class TwitterDataMetric(db.Model):
+    __tablename__ = 'twitter_data_metrics'
+    id = db.Column(db.Integer, primary_key=True)
+    scraped_data = db.Column(db.Integer, db.ForeignKey('scraped_data.id'))
+    followers = db.Column(db.Integer)
+    retweet = db.Column(db.Integer)
+    replies = db.Column(db.Integer)
+    likes = db.Column(db.Integer)
+    quotes = db.Column(db.Integer)
+
+    def __init__(self, **kwargs):
+        super(TwitterDataMetric, self).__init__(**kwargs)
+        # do custom stuff
+
+    def __repr__(self):
+        return '<TwitterDataMetric {}>'.format(self.followers)
+
+    @property
+    def serialized(self):
+        return dict(followers=self.followers,
+                    retweet=self.retweet,
+                    replies=self.replies,
+                    likes=self.likes,
+                    quotes=self.quotes)
 
 
 class SentimentScore(db.Model):

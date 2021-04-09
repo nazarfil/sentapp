@@ -31,7 +31,7 @@ def calculate_hype_score(date, input_data_id):
     except:
         logger.error("No data for yesterday")
 
-    if (sum_positive is not None) and (sum_negative is not None) and (sum_mixed is not None) and (sum_neutral is not None):
+    if (sum_positive.sum is not None) and (sum_negative.sum is not None) and (sum_mixed.sum is not None) and (sum_neutral.sum is not None):
         absolute_hype = sum_positive.sum + sum_mixed.sum - sum_negative.sum
         relative_hype = (sum_positive.sum + sum_mixed.sum) / sum_negative.sum
 
