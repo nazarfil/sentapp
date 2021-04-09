@@ -76,8 +76,9 @@ def get_history_score(name, start_date, end_date, graph_types):
     if len(scores) > 0:
         for score in scores:
             for graph_type in types:
-                point = [score.serialized['date'], score.serialized[graph_type]]
-                result[graph_type].append(point)
+                if graph_type in available_type:
+                    point = [score.serialized['date'], score.serialized[graph_type]]
+                    result[graph_type].append(point)
 
     return result
 
