@@ -27,3 +27,4 @@ def search_twitter(query, **kwargs):
         calls_count+=1
 
     return response.json()
+
