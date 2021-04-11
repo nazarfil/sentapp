@@ -1,0 +1,125 @@
+Global endpoint return the global data about coins
+---
+definitions:
+  MinMax:
+    type: object
+    properties:
+      max_absolute_hype:
+        type: object
+        schema:
+          $ref: '#/definitions/Table'
+      max_count:
+        type: object
+        schema:
+          $ref: '#/definitions/Table'
+      min_absolute_hype:
+        type: object
+        schema:
+          $ref: '#/definitions/Table'
+      min_relative_hype:
+        type: object
+        schema:
+          $ref: '#/definitions/Table'
+
+  Global:
+    type: object
+    properties:
+      min_max:
+        type: object
+        schema:
+          $ref: '#/definitions/MinMax'
+responses:
+  200:
+    description: A list of coins in table view
+    schema:
+      $ref: '#/definitions/Table'
+    examples:
+      table:
+        "global": {
+          "min_max": {
+            "max_absolute_hype": {
+              "absolute_hype": 3.4928055079071783,
+              "absolute_hype_24delta": 2.918520557002203,
+              "count": 10,
+              "count_24delta": 10,
+              "date": "Tue, 06 Apr 2021 00:00:00 GMT",
+              "market_cap": 46462661738.53905,
+              "name": "XRP",
+              "order": 4,
+              "price": 1,
+              "relative_hype": 2.918520557002203,
+              "relative_hype_24delta": 3.4928055079071783,
+              "ticker": "XRP"
+            },
+            "max_count": {
+              "absolute_hype": -1.2625467605294036,
+              "absolute_hype_24delta": 0.5936597575041394,
+              "count": 148,
+              "count_24delta": 148,
+              "date": "Tue, 06 Apr 2021 00:00:00 GMT",
+              "market_cap": 1096710161962.9362,
+              "name": "Bitcoin",
+              "order": 1,
+              "price": 58637,
+              "relative_hype": 0.5936597575041394,
+              "relative_hype_24delta": -1.2625467605294036,
+              "ticker": "BTC"
+            },
+            "max_relative_hype": {
+              "absolute_hype": 0.46901045565027744,
+              "absolute_hype_24delta": 90.18926797028749,
+              "count": 2,
+              "count_24delta": 2,
+              "date": "Tue, 06 Apr 2021 00:00:00 GMT",
+              "market_cap": 40031643831.19123,
+              "name": "Cardano",
+              "order": 7,
+              "price": 1.29,
+              "relative_hype": 90.18926797028749,
+              "relative_hype_24delta": 0.46901045565027744,
+              "ticker": "ADA"
+            },
+            "min_absolute_hype": {
+              "absolute_hype": 3.4928055079071783,
+              "absolute_hype_24delta": 2.918520557002203,
+              "count": 10,
+              "count_24delta": 10,
+              "date": "Tue, 06 Apr 2021 00:00:00 GMT",
+              "market_cap": 46462661738.53905,
+              "name": "XRP",
+              "order": 4,
+              "price": 1,
+              "relative_hype": 2.918520557002203,
+              "relative_hype_24delta": 3.4928055079071783,
+              "ticker": "XRP"
+            },
+            "min_count": {
+              "absolute_hype": -1.2625467605294036,
+              "absolute_hype_24delta": 0.5936597575041394,
+              "count": 148,
+              "count_24delta": 148,
+              "date": "Tue, 06 Apr 2021 00:00:00 GMT",
+              "market_cap": 1096710161962.9362,
+              "name": "Bitcoin",
+              "order": 1,
+              "price": 58637,
+              "relative_hype": 0.5936597575041394,
+              "relative_hype_24delta": -1.2625467605294036,
+              "ticker": "BTC"
+            },
+            "min_relative_hype": {
+              "absolute_hype": 0.46901045565027744,
+              "absolute_hype_24delta": 90.18926797028749,
+              "count": 2,
+              "count_24delta": 2,
+              "date": "Tue, 06 Apr 2021 00:00:00 GMT",
+              "market_cap": 40031643831.19123,
+              "name": "Cardano",
+              "order": 7,
+              "price": 1.29,
+              "relative_hype": 90.18926797028749,
+              "relative_hype_24delta": 0.46901045565027744,
+              "ticker": "ADA"
+            }
+          }
+        }

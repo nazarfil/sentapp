@@ -1,5 +1,3 @@
-from celery import Celery
-
 from . import log
 from sqlite3 import ProgrammingError
 
@@ -16,6 +14,7 @@ import app.services.database_service as db_service
 from flask import Flask
 from app.config import Config
 from app.tasks.background_task import run_scheduled_tasks
+from flasgger import Swagger
 
 migrate = Migrate()
 logger = log.setup_custom_logger('app')
@@ -34,6 +33,7 @@ def init_app():
         app.register_blueprint(client_bp)
         app.register_blueprint(manage_bp)
 
+        swagger = Swagger(app)
         # Create database views and tables
         create_views()
         create_tables()

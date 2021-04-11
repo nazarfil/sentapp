@@ -1,6 +1,7 @@
+from flasgger import swag_from
+
 import app.services.database_service as db_service
 from app.jobs.draw_chart import draw_sparklines
-from app.utility.paint import draw_sparkline
 from app.utility.resources.data import data_demo
 from flask import make_response
 from datetime import datetime
@@ -14,6 +15,7 @@ client_bp = Blueprint('/api', __name__, url_prefix='/api')
 
 # CLIENT API
 @client_bp.route('coins', methods=['GET'])
+@swag_from('/app/api/swagger/coins.yml')
 def get_coins():
     list_of_coins = db_service.query_input_data_paged()
     return jsonify({
@@ -29,6 +31,7 @@ def healthcheck():
 
 
 @client_bp.route('table', methods=['GET'])
+@swag_from('/app/api/swagger/table.yml')
 def get_hype():
     hypes = db_service.query_table_view()
     response = make_response(jsonify([hype.serialized for hype in hypes]))
@@ -37,6 +40,7 @@ def get_hype():
 
 
 @client_bp.route('table/demo', methods=["GET"])
+@swag_from('/app/api/swagger/coins.yml')
 def get_demo_table():
     response = make_response(jsonify(data_demo))
     response.headers['Access-Control-Allow-Origin'] = '*'
@@ -44,12 +48,14 @@ def get_demo_table():
 
 
 @client_bp.route('draw_bars')
+@swag_from('/app/api/swagger/draw.yml')
 def get_long_term_score():
     draw_sparklines()
     return jsonify({"ok": "ok"})
 
 
 @client_bp.route('history/hype_score/<name>')
+@swag_from('/app/api/swagger/history.yml')
 def get_history_hype_score(name):
     today = datetime.today().date().strftime(foramt_Y_M_D)
     start_date = request.args.get('start_date', default='2021-01-01', type=str)
@@ -62,18 +68,18 @@ def get_history_hype_score(name):
 
 
 @client_bp.route('info/best_tweets/<name>')
+@swag_from('/app/api/swagger/best_tweets.yml')
 def get_best_tweets(name):
     today = datetime.today().date().strftime(foramt_Y_M_D)
     date = request.args.get('date', default=today, type=str)
     best_tweets = db_service.get_best_tweets(name, date)
-    response = make_response(jsonify({"data":
-                                          {"best_tweets": best_tweets
-                                           }}))
+    response = make_response(jsonify( {"best_tweets": best_tweets  }))
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
 
 @client_bp.route('global')
+@swag_from('/app/api/swagger/global.yml')
 def get_blobal():
     min_max = db_service.get_min_max_score()
     response = make_response(jsonify({"global": {"min_max": min_max}}))

@@ -1,0 +1,56 @@
+Best tweets endpoint returns 5 best tweets for today
+---
+parameters:
+  - name: coin
+    in: path
+    type: string
+    required: true
+    default: Bitcoin
+
+definitions:
+  Tweet:
+    type: object
+    properties:
+      followers:
+        type: integer
+      twitter_id:
+        type: string
+
+  Tweets:
+    type : object
+    properties:
+      best_tweets:
+        type: array
+        items:
+          $ref: '#/definitions/Tweets'
+
+responses:
+  200:
+    description: A list of tweets
+    schema:
+      $ref: '#/definitions/Tweets'
+    examples:
+      tweets:  {
+          "best_tweets": [
+            {
+              "followers": 19844,
+              "twitter_id": "1381141063675604992"
+            },
+            {
+              "followers": 5450,
+              "twitter_id": "1381170157440151556"
+            },
+            {
+              "followers": 4055,
+              "twitter_id": "1381093750366158852"
+            },
+            {
+              "followers": 2609,
+              "twitter_id": "1381154940589064197"
+            },
+            {
+              "followers": 1864,
+              "twitter_id": "1381153974787670020"
+            }
+          ]
+        }

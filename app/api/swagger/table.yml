@@ -1,0 +1,51 @@
+Table endpoint return the table view on coins score data
+---
+definitions:
+  TableView:
+    type: array
+    items:
+      $ref: '#/definitions/Table'
+  Table:
+    type: object
+    properties:
+      absolute_hype:
+        type: number
+      absolute_hype_24delta:
+        type: number
+      count:
+        type: integer
+      market_cap:
+        type: number
+      name:
+        type: string
+      order:
+        type: integer
+      price:
+        type: integer
+      relative_hype:
+        type: number
+      relative_hype_24delta:
+        type: number
+      ticker:
+        type: string
+responses:
+  200:
+    description: A list of coins in table view
+    schema:
+      $ref: '#/definitions/TableView'
+    examples:
+      table: [
+          {
+            "absolute_hype": -1.776200832799077,
+            "absolute_hype_24delta": 0.05097115493017403,
+            "count": 2,
+            "count_24delta": 2,
+            "date": "Tue, 06 Apr 2021 00:00:00 GMT",
+            "market_cap": 2794813814.0719757,
+            "name": "Dash",
+            "order": 43,
+            "price": 277.29,
+            "relative_hype": 0.05097115493017403,
+            "relative_hype_24delta": -1.776200832799077,
+            "ticker": "DASH"
+          }]
