@@ -40,10 +40,10 @@ def query_table_view():
 
 
 def get_min_max_score():
-    max_abs =  db.session.query(TableView).order_by(TableView.absolute_hype.desc()).first()
-    min_abs =  db.session.query(TableView).order_by(TableView.absolute_hype.desc()).first()
-    max_rel =  db.session.query(TableView).order_by(TableView.relative_hype.desc()).first()
-    min_rel =  db.session.query(TableView).order_by(TableView.relative_hype.desc()).first()
+    max_abs = db.session.query(TableView).order_by(TableView.absolute_hype.desc()).first()
+    min_abs = db.session.query(TableView).order_by(TableView.absolute_hype.desc()).first()
+    max_rel = db.session.query(TableView).order_by(TableView.relative_hype.desc()).first()
+    min_rel = db.session.query(TableView).order_by(TableView.relative_hype.desc()).first()
     max_count = db.session.query(TableView).order_by(TableView.count.desc()).first()
     min_count = db.session.query(TableView).order_by(TableView.count.desc()).first()
     return {
@@ -113,3 +113,19 @@ def create_financial_record(price=None, market_cap=None, the_date=None, volume=N
                                input_data=input_data)
         db.session.add(record)
         db.session.commit()
+
+
+def get_best_tweets(name, date):
+    coin = db.session.query(InputData).filter_by(name=name).one()
+    best_tweets = db.session.query(ScrapedData, TwitterDataMetric) \
+        .filter(ScrapedData.input_data == coin.id, ScrapedData.date == date) \
+        .filter(TwitterDataMetric.scraped_data == ScrapedData.id).order_by(TwitterDataMetric.followers.desc()).limit(
+        5).all()
+    tweets = []
+    for tweet in best_tweets:
+        tweet_metric = {
+            "twitter_id": tweet[0].source_id,
+            "followers": tweet[1].followers
+        }
+        tweets.append(tweet_metric)
+    return tweets

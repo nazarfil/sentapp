@@ -61,11 +61,21 @@ def get_history_hype_score(name):
     return response
 
 
+@client_bp.route('info/best_tweets/<name>')
+def get_best_tweets(name):
+    today = datetime.today().date().strftime(foramt_Y_M_D)
+    date = request.args.get('date', default=today, type=str)
+    best_tweets = db_service.get_best_tweets(name, date)
+    response = make_response(jsonify({"data":
+                                          {"best_tweets": best_tweets
+                                           }}))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
+
 @client_bp.route('global')
 def get_blobal():
     min_max = db_service.get_min_max_score()
-    return jsonify({
-        "global": {
-            "min_max": min_max
-        }
-    })
+    response = make_response(jsonify({"global": {"min_max": min_max}}))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response

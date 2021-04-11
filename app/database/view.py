@@ -88,6 +88,7 @@ class TableView(Base):
         else:
             return self.count_24delta
 
+
 def create_view_statement(db_instance):
     max_date = db_instance.session \
         .query(SentimentHypeScore.input_data.label("input_id"), func.max(SentimentHypeScore.date).label("max_date")) \
@@ -95,17 +96,17 @@ def create_view_statement(db_instance):
         .subquery()
 
     find_data = db_instance.session.query(FinancialData.input_data.label("in_id"), FinancialData.price,
-                                      FinancialData.volume, FinancialData.market_cap) \
+                                          FinancialData.volume, FinancialData.market_cap) \
         .select_from(FinancialData.__table__.join(max_date, (FinancialData.date == max_date.c.max_date) & (
-                FinancialData.input_data == max_date.c.input_id))) \
+            FinancialData.input_data == max_date.c.input_id))) \
         .subquery()
 
     hype_score = db_instance.session \
         .query(SentimentHypeScore.relative_hype, SentimentHypeScore.absolute_hype, SentimentHypeScore.count,
                SentimentHypeScore.date, SentimentHypeScore.input_data, SentimentHypeScore.absolute_hype_24delta,
-               SentimentHypeScore.relative_hype_24delta, SentimentHypeScore.count_24delta,) \
+               SentimentHypeScore.relative_hype_24delta, SentimentHypeScore.count_24delta, ) \
         .select_from(SentimentHypeScore.__table__.join(max_date, (SentimentHypeScore.date == max_date.c.max_date) & (
-                SentimentHypeScore.input_data == max_date.c.input_id))) \
+            SentimentHypeScore.input_data == max_date.c.input_id))) \
         .subquery()
     return db_instance.select([find_data, hype_score, InputData.ticker, InputData.name, InputData.order]) \
         .where(InputData.id == hype_score.c.input_data).where(find_data.c.in_id == hype_score.c.input_data)

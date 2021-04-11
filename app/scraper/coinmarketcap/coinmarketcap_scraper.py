@@ -88,6 +88,10 @@ def extract_to_mem():
     return result_cryptos
 
 
+def get_descriptions():
+    cmc_token = "b2b8b0cc-d018-4e1f-a557-9c588e458f13"
+    header = "X-CMC_PRO_API_KEY"
+
 def main():
     url = "https://coinmarketcap.com/all"
     extract(url)
