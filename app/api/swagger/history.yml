@@ -22,6 +22,30 @@ parameters:
     description: available values are absolute_hype, count, relative_hype
     required: false
     default: 'absolute_hype,count,relative_hype'
+definitions:
+  HistoryGraph:
+    type: object
+    properties:
+      coin:
+        type: object
+        items:
+          $ref: '#/definitions/Coin'
+      count:
+        type: array
+        items:
+          $ref: '#/definitions/DataPoint'
+      relative_hype:
+        type: array
+        items:
+          $ref: '#/definitions/DataPoint'
+      absolute_hype:
+        type: array
+        items:
+          $ref: '#/definitions/DataPoint'
+  DataPoint:
+    type: array
+    items:
+      type: number
 
 responses:
   200:
@@ -29,5 +53,67 @@ responses:
     schema:
       $ref: '#/definitions/HistoryGraph'
     examples:
-      history:
-        {}
+      history: {
+      "absolute_hype": [
+        [
+            1614470400000.0,
+            -14.571749145569356
+        ],
+        [
+            1614556800000.0,
+            0.7500705749403098
+        ],
+        [
+            1614643200000.0,
+            -4.5182431368371
+        ],
+        [
+            1614729600000.0,
+            0.4328787062408996
+        ]
+      ],
+      "coin": {
+        "date": "Thu, 04 Mar 2021 00:00:00 GMT",
+        "id": "bitcoin",
+        "name": "Bitcoin",
+        "order": 1,
+        "source": "api",
+        "ticker": "BTC"
+      },
+      "count": [
+        [
+            1614470400000.0,
+            303.0
+        ],
+        [
+            1614556800000.0,
+            405.0
+        ],
+        [
+            1614643200000.0,
+            380.0
+        ],
+        [
+            1614729600000.0,
+            343.0
+        ]
+      ],
+      "relative_hype": [
+        [
+            1614470400000.0,
+            0.6435482829651353
+        ],
+        [
+            1614556800000.0,
+            1.0253714250532646
+        ],
+        [
+            1614643200000.0,
+            0.8787475525697928
+        ],
+        [
+            1614729600000.0,
+            1.0135400270622543
+        ]
+      ]
+  }

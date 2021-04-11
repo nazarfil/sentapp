@@ -41,11 +41,11 @@ def query_table_view():
 
 def get_min_max_score():
     max_abs = db.session.query(TableView).order_by(TableView.absolute_hype.desc()).first()
-    min_abs = db.session.query(TableView).order_by(TableView.absolute_hype.desc()).first()
+    min_abs = db.session.query(TableView).order_by(TableView.absolute_hype.asc()).first()
     max_rel = db.session.query(TableView).order_by(TableView.relative_hype.desc()).first()
-    min_rel = db.session.query(TableView).order_by(TableView.relative_hype.desc()).first()
+    min_rel = db.session.query(TableView).order_by(TableView.relative_hype.asc()).first()
     max_count = db.session.query(TableView).order_by(TableView.count.desc()).first()
-    min_count = db.session.query(TableView).order_by(TableView.count.desc()).first()
+    min_count = db.session.query(TableView).order_by(TableView.count.asc()).first()
     return {
         "max_absolute_hype": (max_abs.serialized),
         "min_absolute_hype": (min_abs.serialized),
