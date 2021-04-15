@@ -118,8 +118,7 @@ class SentimentScore(db.Model):
     negative = db.Column(db.Numeric)
     neutral = db.Column(db.Numeric)
     mixed = db.Column(db.Numeric)
-    date = db.Column(db.Date)
-    datetime = db.Column(db.DateTime)
+    date = db.Column(db.DateTime)
     source = db.Column(db.String(60))
 
     @property
