@@ -22,18 +22,15 @@ def get_tweets_for_range(input_data, start_date, end_date, next_token):
 
 
 def build_tweet_query(input_data):
-    common_names = ["Avalanche", "Dash", "Maker", "Compound", "Waves", "Dent"]
-    common_tickers = ["SUSHI", "OMG", "LEO", "NEAR", "DASH", "CAKE", "DENT"]
+    common_names = ["Avalanche", "Dash", "Maker", "Compound", "Waves", "Dent", "Neo", "Harmony"]
     ticker = input_data.ticker
     name = input_data.name
-
-    if ticker in common_tickers:
-        ticker = "#" + ticker
 
     if name in common_names:
         name = "#" + name
 
-    return "({} or {} or {} or {}) and -is:retweet".format(name, ticker, name.lower(), ticker.lower())
+    return "({} or {} or #{} or #{} or ${} or ${}) and -is:retweet".format(name, name.lower(), ticker, ticker.lower(),
+                                                                            ticker, ticker.lower())
 
 
 def get_datetime_from_string(date):

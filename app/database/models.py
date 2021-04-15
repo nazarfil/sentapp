@@ -64,7 +64,7 @@ class ScrapedData(db.Model):
     __tablename__ = 'scraped_data'
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(260))
-    date = db.Column(db.Date)
+    date = db.Column(db.DateTime)
     source = db.Column(db.String(60))
     source_id = db.Column(db.String(60))
     input_data = db.Column(db.Integer, db.ForeignKey('input_data.id'))
@@ -119,6 +119,7 @@ class SentimentScore(db.Model):
     neutral = db.Column(db.Numeric)
     mixed = db.Column(db.Numeric)
     date = db.Column(db.Date)
+    datetime = db.Column(db.DateTime)
     source = db.Column(db.String(60))
 
     @property

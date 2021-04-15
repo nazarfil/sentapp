@@ -8,7 +8,6 @@ from app.jobs.populate_sentiment_for_input_job import calculate_sentiment_for_tw
 from app.scraper.twitter.search_tweets_for_input import get_tweet_for_input, get_tweets_for_range, format_T_H_M_S_ZZ
 from app.database.models import ScrapedData, InputData, TwitterDataMetric, db
 
-from app.services import database_service
 from app.utility.formats import foramt_Y_M_D
 
 MAX_TWEETS = 400
@@ -80,49 +79,16 @@ def calculate_score_for_tweet(coin, date, token="none"):
         logger.error("No results for " + str(coin.name))
 
 
-def create_scraped_data_record(tweets, input_data):
-    source = "twitter"
-    logger.info("Adding record with  {} from {}".format(input_data.id, source))
-    for tweet in tweets["data"]:
-        text_data = tweet["text"]
-        text_data = " ".join(filter(lambda x: x[0] != '@', text_data.split()))
-        if len(text_data) > 260:
-            text_data = text_data[0:260]
-        database_service.create_and_save_scrape_data(input_data, source, text_data, tweet)
-
-
 def create_scraped_data_records(tweets, coin):
-    source = "twitter"
-    logger.info("Adding record with {} from {} ".format(coin.id, source))
+    logger.info("Adding record with {} from {} ".format(coin.id))
     tweets_list = []
     users = tweets["includes"]["users"]
     for tweet in tweets["data"]:
-        text_data = tweet["text"]
-        author_id = tweet["author_id"]
-        metric = tweet["public_metrics"]
-
-        user = find_user(users, author_id)
-        text_data = " ".join(filter(lambda x: x[0] != '@', text_data.split()))
-
-        if len(text_data) > 260:
-            text_data = text_data[0:260]
-
-        scraped_record = ScrapedData(text=text_data,
-                                     date=tweet["created_at"],
-                                     source=source,
-                                     source_id=tweet["id"],
-                                     input_data=coin.id)
+        scraped_record = create_scraped_data_from_twitter(tweet, coin_id=coin.id)
         db.session.add(scraped_record)
         db.session.commit()
-        
-        twitter_metric = TwitterDataMetric(
-            scraped_data=scraped_record.id,
-            followers=user["public_metrics"]["followers_count"],
-            retweet=metric["retweet_count"],
-            replies=metric["reply_count"],
-            likes=metric["like_count"],
-            quotes=metric["quote_count"]
-        )
+
+        twitter_metric = create_metric_data(tweet, users, scraped_record_id=scraped_record.id)
         db.session.add(twitter_metric)
         db.session.commit()
         tweets_list.append(scraped_record)
@@ -133,3 +99,32 @@ def find_user(users, user_id):
     for user in users:
         if user["id"] == user_id:
             return user
+
+
+def create_metric_data(tweet, users, scraped_record_id):
+    author_id = tweet["author_id"]
+    user = find_user(users, author_id)
+    metric = tweet["public_metrics"]
+    return TwitterDataMetric(
+        scraped_data=scraped_record_id,
+        followers=user["public_metrics"]["followers_count"],
+        retweet=metric["retweet_count"],
+        replies=metric["reply_count"],
+        likes=metric["like_count"],
+        quotes=metric["quote_count"]
+    )
+
+
+def create_scraped_data_from_twitter(tweet, coin_id) -> object:
+    source = "twitter"
+    text_data = tweet["text"]
+
+    text_data = " ".join(filter(lambda x: x[0] != '@', text_data.split()))
+
+    if len(text_data) > 260:
+        text_data = text_data[0:260]
+    return ScrapedData(text=text_data,
+                       date=tweet["created_at"],
+                       source=source,
+                       source_id=tweet["id"],
+                       input_data=coin_id)
