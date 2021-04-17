@@ -19,12 +19,19 @@ def search_twitter(query, **kwargs):
     status_code = 429
     logger.debug("Calling twitter with request {}".format(url))
     calls_count = 0
-    while status_code != 200 and calls_count < max_calls:
-        response = requests.request("GET", url, headers=headers)
-        if response.status_code == 429 or response.status_code == 400:
-            logger.debug("Calling twitter resulted in : {}".format(response.status_code))
-        status_code = response.status_code
-        calls_count+=1
+    try:
+        while status_code != 200 and calls_count < max_calls:
+            response = requests.request("GET", url, headers=headers)
+            if response.status_code == 429 or response.status_code == 400:
+                logger.debug("Calling twitter resulted in : {}".format(response.status_code))
+            status_code = response.status_code
+            calls_count+=1
+    except:
+        return {}
+    try:
+        response = response.json()
+    except:
+        return {}
 
-    return response.json()
+    return response
 

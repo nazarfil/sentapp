@@ -32,3 +32,5 @@ def test_request_response(mock_get):
     query_response = search_twitter(query)
     assert_is_not_none(query_response)
     assert_dict_equal(query_response, mocked_response)
+
+

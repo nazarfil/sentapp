@@ -25,12 +25,11 @@ def build_tweet_query(input_data):
     common_names = ["Avalanche", "Dash", "Maker", "Compound", "Waves", "Dent", "Neo", "Harmony"]
     ticker = input_data.ticker
     name = input_data.name
-
+    url_encoded_hashtag = "%23"
     if name in common_names:
-        name = "#" + name
+        name = url_encoded_hashtag + name
 
-    return "({} or {} or #{} or #{} or ${} or ${}) and -is:retweet".format(name, name.lower(), ticker, ticker.lower(),
-                                                                            ticker, ticker.lower())
+    return "({} OR {} OR {}{} OR {}{}) and -is:retweet".format(name, name.lower(), url_encoded_hashtag, ticker , url_encoded_hashtag, ticker.lower())
 
 
 def get_datetime_from_string(date):

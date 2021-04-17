@@ -4,6 +4,7 @@ from flask import jsonify
 from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
+from app.log import setup_default_logger
 from app.utility.paint import draw_graphs
 from app.database.view import TableView
 from app.database.models import *
@@ -115,17 +116,25 @@ def create_financial_record(price=None, market_cap=None, the_date=None, volume=N
         db.session.commit()
 
 
+log = setup_default_logger()
+
+
 def get_best_tweets(name, date):
-    coin = db.session.query(InputData).filter_by(name=name).one()
-    best_tweets = db.session.query(ScrapedData, TwitterDataMetric) \
-        .filter(ScrapedData.input_data == coin.id, ScrapedData.date == date) \
-        .filter(TwitterDataMetric.scraped_data == ScrapedData.id).order_by(TwitterDataMetric.followers.desc()).limit(
-        5).all()
     tweets = []
-    for tweet in best_tweets:
-        tweet_metric = {
-            "twitter_id": tweet[0].source_id,
-            "followers": tweet[1].followers
-        }
-        tweets.append(tweet_metric)
+    try:
+        coin = db.session.query(InputData).filter_by(name=name).one()
+        best_tweets = db.session.query(ScrapedData, TwitterDataMetric) \
+            .filter(ScrapedData.input_data == coin.id, ScrapedData.date == date) \
+            .filter(TwitterDataMetric.scraped_data == ScrapedData.id).order_by(
+            TwitterDataMetric.followers.desc()).limit(
+            5).all()
+
+        for tweet in best_tweets:
+            tweet_metric = {
+                "twitter_id": tweet[0].source_id,
+                "followers": tweet[1].followers
+            }
+            tweets.append(tweet_metric)
+    except:
+        log.error("Not such coin")
     return tweets

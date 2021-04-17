@@ -11,7 +11,7 @@ logger = setup_custom_logger("jobs")
 
 
 def calculate_hype_score(date, input_data_id):
-    logger.info("Calculating hype score for {}".format(input_data_id))
+
     sum_positive = db.session.query(func.sum(SentimentScore.positive).label('sum')).filter(SentimentScore.date == date, SentimentScore.input_data == input_data_id).one()
     sum_negative = db.session.query(func.sum(SentimentScore.negative).label('sum')).filter(SentimentScore.date == date, SentimentScore.input_data == input_data_id).one()
     sum_neutral = db.session.query(func.sum(SentimentScore.neutral).label('sum')).filter(SentimentScore.date == date, SentimentScore.input_data == input_data_id).one()
@@ -61,6 +61,7 @@ def calculate_hype_score(date, input_data_id):
             existing.count = count_today
             existing.count_24delta = delta_count
             existing.date = date
+        logger.info("Added hype score for {} and {}".format(input_data_id, date))
         db.session.commit()
 
 
