@@ -85,12 +85,13 @@ def create_scraped_data_records(tweets, coin):
     for tweet in tweets["data"]:
         scraped_record = create_scraped_data_from_twitter(tweet, coin_id=coin.id)
         db.session.add(scraped_record)
+        db.session.commit()
 
         twitter_metric = create_metric_data(tweet, users, scraped_record_id=scraped_record.id)
         db.session.add(twitter_metric)
         tweets_list.append(scraped_record)
+        db.session.commit()
 
-    db.session.commit()
     return tweets_list
 
 

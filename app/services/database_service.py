@@ -121,10 +121,13 @@ log = setup_default_logger()
 
 def get_best_tweets(name, date):
     tweets = []
+
+    tomorrow = datetime.strptime(date, '%Y-%m-%d') + timedelta(days=1)
+
     try:
         coin = db.session.query(InputData).filter_by(name=name).one()
         best_tweets = db.session.query(ScrapedData, TwitterDataMetric) \
-            .filter(ScrapedData.input_data == coin.id, ScrapedData.date == date) \
+            .filter(ScrapedData.input_data == coin.id, ScrapedData.date > date, ScrapedData.date < tomorrow) \
             .filter(TwitterDataMetric.scraped_data == ScrapedData.id).order_by(
             TwitterDataMetric.followers.desc()).limit(
             5).all()
