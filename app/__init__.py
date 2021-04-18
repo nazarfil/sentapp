@@ -6,7 +6,6 @@ from sqlalchemy_utils import create_view
 
 from .database.view import create_view_statement
 from .database.models import db
-from app.jobs.populate_sentiment_for_input_job import calculate_sentiment
 from app.api.manage_api import manage_bp
 from app.api.client_api import client_bp
 import app.services.database_service as db_service

@@ -108,6 +108,7 @@ def create_financial_record(price=None, market_cap=None, the_date=None, volume=N
         existing.price = price
         existing.volume = volume
         existing.market_cap = market_cap
+        db.session.commit()
     except NoResultFound:
         record = FinancialData(price=price,
                                market_cap=market_cap,

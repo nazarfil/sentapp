@@ -3,9 +3,9 @@ import datetime
 from app import log
 from app.jobs.calculate_hype_score_job import calculate_hype_score
 from app.jobs.populate_price_job import create_financial_record_for_coins
-from app.jobs.populate_sentiment_for_input_job import calculate_sentiment_for_tweet
 from app.scraper.twitter.search_tweets_for_input import get_tweet_for_input, get_tweets_for_range, format_T_H_M_S_ZZ
-from app.database.models import ScrapedData, InputData, TwitterDataMetric, db
+from app.database.models import ScrapedData, InputData, TwitterDataMetric, db, SentimentScore
+from app.algos.sentiment_aws import AwsClient
 
 from app.utility.formats import foramt_Y_M_D
 
@@ -38,7 +38,6 @@ class TwitterJob(object):
         :rtype: void
         """
         coins = InputData.query.all()
-        # logger.info("Calculating score for" + str(len(coins)))
         now = datetime.datetime.utcnow()
         back_15min = now - datetime.timedelta(minutes=15)
         back_30min = now - datetime.timedelta(minutes=30)
@@ -88,7 +87,7 @@ class TwitterJob(object):
             if tweets["meta"]["result_count"] > 0:
                 tweets_records = self.create_scraped_data_records(tweets, coin)
                 for tr in tweets_records:
-                    calculate_sentiment_for_tweet(coin, tr)
+                    self.calculate_sentiment_for_tweet(coin, tr)
                 there_is_next_token = "next_token" in tweets["meta"]
                 if there_is_next_token and called < self.MAX_TWEETS:
                     token = tweets["meta"]["next_token"]
@@ -110,7 +109,7 @@ class TwitterJob(object):
             if tweets["meta"]["result_count"] > 0:
                 tweets_records = self.create_scraped_data_records(tweets, coin)
                 for tr in tweets_records:
-                    calculate_sentiment_for_tweet(coin, tr)
+                    self.calculate_sentiment_for_tweet(coin, tr)
                 there_is_next_token = "next_token" in tweets["meta"]
                 if there_is_next_token:
                     token = tweets["meta"]["next_token"]
@@ -141,6 +140,17 @@ class TwitterJob(object):
             db.session.commit()
 
         return tweets_list
+
+    def calculate_sentiment_for_tweet(self, coin, tweet, client=AwsClient()):
+        """
+
+        :param coin:
+        :param tweet:
+        :param client:
+        :return:
+        """
+        sentiment = client.get_sentiment(text=tweet.text)
+        self.assign_score(coin, tweet.date, sentiment, client.name)
 
     def create_metric_data(self, tweet, users, scraped_record_id) -> object:
         """
@@ -203,3 +213,27 @@ class TwitterJob(object):
         for user in users:
             if user["id"] == user_id:
                 return user
+
+    def assign_score(self, input_data, date, sentiment, source):
+        """
+
+        :param input_data:
+        :param date:
+        :param sentiment:
+        :param source:
+        :return:
+        """
+        sentiment_record = SentimentScore(
+            input_data=input_data.id,
+            sentiment=sentiment["Sentiment"],
+            positive=sentiment["SentimentScore"]["Positive"],
+            negative=sentiment["SentimentScore"]["Negative"],
+            neutral=sentiment["SentimentScore"]["Neutral"],
+            mixed=sentiment["SentimentScore"]["Mixed"],
+            date=date,
+            source=source
+
+        )
+        db.session.add(sentiment_record)
+        db.session.commit()
+
