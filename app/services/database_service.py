@@ -105,7 +105,9 @@ def get_long_scores():
 def create_financial_record(price=None, market_cap=None, the_date=None, volume=None, input_data=None):
     try:
         existing = db.session.query(FinancialData).filter_by(input_data=input_data, date=the_date).one()
-        pass
+        existing.price = price
+        existing.volume = volume
+        existing.market_cap = market_cap
     except NoResultFound:
         record = FinancialData(price=price,
                                market_cap=market_cap,
