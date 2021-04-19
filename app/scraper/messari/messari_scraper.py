@@ -8,21 +8,20 @@ messari_assets = "https://data.messari.io/api/v2/assets/{}/profile"
 def get_assets(name):
     global response
     url = messari_assets.format(name)
-    status_code = 429
-    while status_code != 200:
-        response = requests.request("GET", url)
-        if response.status_code == 429 or response.status_code == 400:
-            time.sleep(180)
-        status_code = response.status_code
+    response = requests.request("GET", url)
     return response.json()
 
 
 def get_messari_description(name):
     profile = get_assets(name)
+    print(name)
     if "error_code" not in profile['status']:
-        data = profile["data"]["profile"]
-        raw_desc = data["general"]["overview"]["project_details"]
-        filtered_desc = re.sub(r'<.+?>', ' ', raw_desc)
-        return filtered_desc
+        try:
+            data = profile["data"]["profile"]
+            raw_desc = data["general"]["overview"]["project_details"]
+            filtered_desc = re.sub(r'<.+?>', ' ', raw_desc)
+            return filtered_desc
+        except:
+            return "NOT_AVAILABLE"
     else:
         return "NOT_AVAILABLE"

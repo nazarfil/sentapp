@@ -36,3 +36,10 @@ def update_description_of_coins():
         desc = get_messari_description(name)
         coin.description = desc
     db.session.commit()
+
+
+def update_description_of_coin(coin, name):
+    coin = InputData.query.filter_by(name=coin).one()
+    desc = get_messari_description(name)
+    coin.description = desc
+    db.session.commit()
