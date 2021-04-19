@@ -61,9 +61,11 @@ def get_history_score(name, start_date, end_date, graph_types):
     types = graph_types.split(",")
     available_type = ["absolute_hype", "relative_hype", "count"]
     coin = InputData.query.filter(InputData.name == name).first()
+    table_data = db.session.query(TableView).filter(TableView.name == coin.name).first()
     scores = []
     result = {
-        'coin': coin.serialized
+        'coin': coin.serialized,
+        'table_data':  table_data.serialized
     }
     if coin is not None:
         scores = SentimentHypeScore.query.filter(SentimentHypeScore.date.between(start_date, end_date),
