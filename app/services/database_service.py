@@ -24,7 +24,9 @@ def query_input_data_paged():
 
 
 def query_input_data(name):
-    InputData.query.filter_by(name=name).first()
+    coin = InputData.query.filter_by(name=name).first()
+    table_data = db.session.query(TableView).filter(TableView.name == coin.name).first()
+    return {"coin":coin.serialized, "table_data":table_data.serialized}
 
 
 def query_scraped_data_batch(input_data, batch_size):
@@ -61,11 +63,9 @@ def get_history_score(name, start_date, end_date, graph_types):
     types = graph_types.split(",")
     available_type = ["absolute_hype", "relative_hype", "count"]
     coin = InputData.query.filter(InputData.name == name).first()
-    table_data = db.session.query(TableView).filter(TableView.name == coin.name).first()
     scores = []
     result = {
-        'coin': coin.serialized,
-        'table_data':  table_data.serialized
+        'coin': coin.serialized
     }
     if coin is not None:
         scores = SentimentHypeScore.query.filter(SentimentHypeScore.date.between(start_date, end_date),
@@ -126,9 +126,7 @@ log = setup_default_logger()
 
 def get_best_tweets(name, date):
     tweets = []
-
     tomorrow = datetime.strptime(date, '%Y-%m-%d') + timedelta(days=1)
-
     try:
         coin = db.session.query(InputData).filter_by(name=name).one()
         best_tweets = db.session.query(ScrapedData, TwitterDataMetric) \

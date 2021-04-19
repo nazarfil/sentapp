@@ -23,6 +23,15 @@ def get_coins():
     })
 
 
+@client_bp.route('coin/<name>', methods=['GET'])
+@swag_from('/app/api/swagger/coin.yml')
+def get_coins_by_name(name):
+    coin = db_service.query_input_data(name)
+    return jsonify({
+        'data': coin
+    })
+
+
 @client_bp.route('healthcheck', methods=["GET"])
 def healthcheck():
     return jsonify({
@@ -73,7 +82,7 @@ def get_best_tweets(name):
     today = datetime.today().date().strftime(foramt_Y_M_D)
     date = request.args.get('date', default=today, type=str)
     best_tweets = db_service.get_best_tweets(name, date)
-    response = make_response(jsonify( {"best_tweets": best_tweets  }))
+    response = make_response(jsonify({"best_tweets": best_tweets}))
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
