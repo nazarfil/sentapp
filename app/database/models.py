@@ -12,6 +12,7 @@ class InputData(db.Model):
     date = db.Column(db.Date)
     ticker = db.Column(db.String(32))
     order = db.Column(db.Integer)
+    description = db.Column(db.String(600))
     string_id = db.Column(db.String(32))
 
     def __init__(self, **kwargs):
@@ -29,7 +30,8 @@ class InputData(db.Model):
                     date=self.date,
                     source=self.source,
                     ticker=self.ticker,
-                    order=self.order
+                    order=self.order,
+                    description=self.description
                     )
 
 
