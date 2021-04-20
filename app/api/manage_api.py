@@ -78,7 +78,9 @@ def calculate_hype_score_by_name(name):
 @manage_bp.route('calculate_hype_score', methods=["POST"])
 @auth.login_required()
 def calculate_hype_score():
-    hype_score_for_all_coins()
+    today = datetime.today().date().strftime(foramt_Y_M_D)
+    date = request.args.get('date', default=today, type=str)
+    hype_score_for_all_coins(date)
     return jsonify({'status': "Request was processed"})
 
 

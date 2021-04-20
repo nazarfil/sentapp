@@ -4,24 +4,24 @@ from app.database.models import SentimentScore, db, InputData, SentimentHypeScor
 from sqlalchemy.sql import func
 
 from app.log import setup_custom_logger
-from app.utility.formats import foramt_Y_M_D
 
 logger = setup_custom_logger("jobs")
 
 
-def get_yesterday_data(date, input_data_id):
-    yesterday = datetime.strptime(date, '%Y-%m-%d') - timedelta(days=1)
+def get_yesterday_data(date_to_calc, input_data_id):
+    yesterday = datetime.strptime(date_to_calc, '%Y-%m-%d') - timedelta(days=1)
 
     try:
-        yesterday_score = SentimentHypeScore.query.filter_by(input_data=input_data_id,
-                                                             date=yesterday.strftime('%Y-%m-%d')).first()
+        yesterday_score = db.session.query(SentimentHypeScore).filter(SentimentHypeScore.input_data==input_data_id,
+                                                                      SentimentHypeScore.date > yesterday.strftime('%Y-%m-%d'),
+                                                                    SentimentHypeScore.date_to_calc < date_to_calc).one()
         count_yesterday = yesterday_score.count
         rel_hype_yesterday = yesterday_score.relative_hype
         abs_hype_yesterday = yesterday_score.absolute_hype
         return count_yesterday, rel_hype_yesterday, abs_hype_yesterday
     except:
         logger.error("No data for yesterday")
-        return 0, 0, 0
+        return 1, 1, 1
 
 
 def calculate_hype_score(date, input_data_id):
@@ -46,9 +46,9 @@ def calculate_hype_score(date, input_data_id):
         absolute_hype = sum_positive.sum + sum_mixed.sum - sum_negative.sum
         relative_hype = (sum_positive.sum + sum_mixed.sum) / sum_negative.sum
 
-        delta_count = (count_today - count_yesterday)/count_yesterday
-        delta_rel_hype = (absolute_hype - abs_hype_yesterday)/abs_hype_yesterday
-        delta_abs_hype = (relative_hype - rel_hype_yesterday)/rel_hype_yesterday
+        delta_count = 100*(count_today - count_yesterday)/count_yesterday
+        delta_rel_hype = 100*(absolute_hype - abs_hype_yesterday)/abs_hype_yesterday
+        delta_abs_hype = 100*(relative_hype - rel_hype_yesterday)/rel_hype_yesterday
 
         hype_record = SentimentHypeScore(
             input_data=input_data_id,
@@ -82,10 +82,7 @@ def hype_score_for_coin(name, date):
         calculate_hype_score(date=date, input_data_id=input_data)
 
 
-def hype_score_for_all_coins():
+def hype_score_for_all_coins(date):
     input_data_ids = db.session.query(SentimentScore.input_data.distinct()).all()
     for data_id in input_data_ids:
-        dates = db.session.query(SentimentScore.date.distinct()).filter_by(input_data=data_id[0]).all()
-        for date in dates:
-            date_str = date[0].strftime(foramt_Y_M_D)
-            calculate_hype_score(date_str, input_data_id=data_id[0])
+        calculate_hype_score(date, input_data_id=data_id[0])

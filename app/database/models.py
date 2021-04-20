@@ -149,7 +149,7 @@ class SentimentHypeScore(db.Model):
     relative_hype = db.Column(db.Numeric)
     relative_hype_24delta = db.Column(db.Numeric)
     count = db.Column(db.Integer)
-    count_24delta = db.Column(db.Integer)
+    count_24delta = db.Column(db.Numeric)
     date = db.Column(db.Date)
 
     def __init__(self, **kwargs):
