@@ -19,6 +19,7 @@ class TwitterJob(object):
 
     def __init__(self):
         self.MAX_TWEETS = 5
+        self.MAX_TWEETS_ALL = 10
         self.MAX_POOL_REQUEST = 450
 
     def scrape_twitter_from_db(self, date):
@@ -30,7 +31,7 @@ class TwitterJob(object):
         if coins is None:
             pass
         for coin in coins:
-            self.calculate_score_for_tweet(coin, date)
+            self.calculate_score_for_tweet(coin, date, called=0)
 
     def scrape_twitter_from_db_range(self):
         """
@@ -66,7 +67,7 @@ class TwitterJob(object):
         coin = InputData.query.filter_by(name=name).first()
         if coin is None:
             pass
-        self.calculate_score_for_tweet(coin, date)
+        self.calculate_score_for_tweet(coin, date, called=0)
 
     def calculate_score_for_tweet_range(self, coin, start_date, end_date, called, token="none"):
         """
@@ -93,7 +94,7 @@ class TwitterJob(object):
                     token = tweets["meta"]["next_token"]
                     self.calculate_score_for_tweet_range(coin, start_date, end_date, called + 1, token)
 
-    def calculate_score_for_tweet(self, coin, date, token="none"):
+    def calculate_score_for_tweet(self, coin, date, called, token="none"):
         """
         Recursive method to get tweets and calculate sentiment score for tweets in date range
         :param coin: coin name to calculate score for
@@ -111,9 +112,9 @@ class TwitterJob(object):
                 for tr in tweets_records:
                     self.calculate_sentiment_for_tweet(coin, tr)
                 there_is_next_token = "next_token" in tweets["meta"]
-                if there_is_next_token:
+                if there_is_next_token and called < self.MAX_TWEETS_ALL:
                     token = tweets["meta"]["next_token"]
-                    self.calculate_score_for_tweet(coin, date, token)
+                    self.calculate_score_for_tweet(coin, date, called+1, token)
         except:
             logger.error("No results for " + str(coin.name))
 

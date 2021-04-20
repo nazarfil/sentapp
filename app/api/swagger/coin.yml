@@ -1,0 +1,46 @@
+Coins endpoint return array of all available coins
+---
+definitions:
+  Coin:
+    type: object
+    properties:
+      id:
+        type: string
+      order:
+        type: integer
+      name:
+        type: string
+      ticker:
+        type: string
+      date:
+        type: string
+responses:
+  200:
+    description: Info about coin
+    schema:
+      $ref: '#/definitions/Coin'
+    examples:
+        "data": {
+                  "coin": {
+                    "date": "Tue, 06 Apr 2021 00:00:00 GMT",
+                    "id": "binancecoin",
+                    "name": "Binance Coin",
+                    "order": 3,
+                    "source": "api",
+                    "ticker": "BNB"
+                  },
+                  "table_data": {
+                    "absolute_hype": -1.776200832799077,
+                    "absolute_hype_24delta": 0.05097115493017403,
+                    "count": 2,
+                    "count_24delta": 2,
+                    "date": "Tue, 06 Apr 2021 00:00:00 GMT",
+                    "market_cap": 2794813814.0719757,
+                    "name": "Dash",
+                    "order": 43,
+                    "price": 277.29,
+                    "relative_hype": 0.05097115493017403,
+                    "relative_hype_24delta": -1.776200832799077,
+                    "ticker": "DASH"
+                  }
+        }

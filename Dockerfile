@@ -19,4 +19,4 @@ COPY static /sentapp
 RUN pip3 install -r requirements.txt
 
 # Run app.py when the container launches
-CMD python wsgi.py
+CMD gunicorn --worker-connections=1000 --workers=1 wsgi:app --threads 2 -b 0.0.0.0:5000

@@ -1,7 +1,5 @@
 from multiprocessing import Process
 
-from flask import jsonify
-from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
 from app.log import setup_default_logger
