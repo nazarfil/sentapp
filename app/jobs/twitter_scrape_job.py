@@ -3,6 +3,7 @@ import datetime
 from app import log
 from app.jobs.calculate_hype_score_job import calculate_hype_score
 from app.jobs.populate_price_job import create_financial_record_for_coins
+from app.jobs.update_database import update_order
 from app.scraper.twitter.search_tweets_for_input import get_tweet_for_input, get_tweets_for_range, format_T_H_M_S_ZZ
 from app.database.models import ScrapedData, InputData, TwitterDataMetric, db, SentimentScore
 from app.algos.sentiment_aws import AwsClient
@@ -55,6 +56,7 @@ class TwitterJob(object):
                 logger.error("Error creating score for coin {}".format(str(coin.name)))
 
         create_financial_record_for_coins(coins, date_str)
+        update_order()
 
     def scrape_twitter_from_db_coin(self, name, date):
         """

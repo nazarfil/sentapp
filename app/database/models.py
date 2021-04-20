@@ -14,6 +14,7 @@ class InputData(db.Model):
     order = db.Column(db.Integer)
     description = db.Column(db.Text)
     string_id = db.Column(db.String(32))
+    market_cap_id = db.Column(db.Integer)
 
     def __init__(self, **kwargs):
         super(InputData, self).__init__(**kwargs)
@@ -31,7 +32,8 @@ class InputData(db.Model):
                     source=self.source,
                     ticker=self.ticker,
                     order=self.order,
-                    description=self.description
+                    description=self.description,
+                    market_cap_id=self.market_cap_id
                     )
 
 

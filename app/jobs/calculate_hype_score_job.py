@@ -46,9 +46,9 @@ def calculate_hype_score(date, input_data_id):
         absolute_hype = sum_positive.sum + sum_mixed.sum - sum_negative.sum
         relative_hype = (sum_positive.sum + sum_mixed.sum) / sum_negative.sum
 
-        delta_count = count_today - count_yesterday
-        delta_rel_hype = absolute_hype - abs_hype_yesterday
-        delta_abs_hype = relative_hype - rel_hype_yesterday
+        delta_count = (count_today - count_yesterday)/count_yesterday
+        delta_rel_hype = (absolute_hype - abs_hype_yesterday)/abs_hype_yesterday
+        delta_abs_hype = (relative_hype - rel_hype_yesterday)/rel_hype_yesterday
 
         hype_record = SentimentHypeScore(
             input_data=input_data_id,

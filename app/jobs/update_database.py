@@ -1,6 +1,7 @@
 from app.database.models import SentimentHypeScore, SentimentScore, db, InputData
 from sqlalchemy import and_, func
 
+from app.database.view import TableView
 from app.scraper.coingecko.cg_service import CgService
 from app.scraper.messari.messari_scraper import get_messari_description
 
@@ -42,4 +43,23 @@ def update_description_of_coin(coin, name):
     coin = InputData.query.filter_by(name=coin).one()
     desc = get_messari_description(name)
     coin.description = desc
+    db.session.commit()
+
+
+def update_order():
+    tables = db.session.query(TableView).order_by(TableView.absolute_hype.desc()).all()
+    tables2 = db.session.query(TableView).order_by(TableView.market_cap.desc()).all()
+    coins = InputData.query.all()
+    table_dict ={}
+    for i, table in enumerate(tables):
+        table_dict[table.name] = {"order": i+1}
+    for i, table in enumerate(tables2):
+        table_dict[table.name]["mc"] = i+1
+    for coin in coins:
+        if coin.name in table_dict:
+            coin.market_cap_id = table_dict[coin.name]["mc"]
+            coin.order = table_dict[coin.name]["order"]
+        else:
+            coin.market_cap_id = len(coins)
+            coin.order = len(coins)
     db.session.commit()
