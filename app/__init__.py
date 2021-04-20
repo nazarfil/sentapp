@@ -23,20 +23,35 @@ def init_app():
     """Construct the core application."""
     app = Flask(__name__, instance_relative_config=False)
     config = Config()
-    logger.info(config.SQLALCHEMY_DATABASE_URI)
     app.config.from_object(config)
     db.init_app(app)
     migrate.init_app(app, db)
 
     with app.app_context():
-        app.register_blueprint(client_bp)
         app.register_blueprint(manage_bp)
 
-        swagger = Swagger(app)
         # Create database views and tables
         create_views()
         create_tables()
         run_scheduled_tasks()
+
+        logger.info("Started manager app")
+        return app
+
+
+def init_client_app():
+    app = Flask(__name__, instance_relative_config=False)
+    config = Config()
+    app.config.from_object(config)
+    db.init_app(app)
+
+    with app.app_context():
+        app.register_blueprint(client_bp)
+
+        swagger = Swagger(app)
+        # Create database views and tables
+        run_scheduled_tasks()
+        logger.info("Started client app")
         return app
 
 
@@ -53,4 +68,3 @@ def create_views():
         create_view('table_view', statement, db.metadata)
     except ProgrammingError:
         logger.error("View already exists")
-

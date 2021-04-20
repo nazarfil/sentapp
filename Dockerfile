@@ -5,6 +5,7 @@ FROM python:3.9
 # will listen for connections
 # Since Flask apps listen to port 5000  by default, we expose it
 EXPOSE 5000
+EXPOSE 6000
 
 # Sets the working directory for following COPY and CMD instructions
 # Notice we haven’t created a directory by this name - this instruction 
@@ -15,8 +16,9 @@ WORKDIR /sentapp
 COPY app /sentapp/app
 COPY requirements.txt /sentapp
 COPY wsgi.py /sentapp
+COPY start_unicorn.sh /sentapp
 COPY static /sentapp
 RUN pip3 install -r requirements.txt
 
 # Run app.py when the container launches
-CMD gunicorn --worker-connections=1000 --workers=1 wsgi:app --threads 2 -b 0.0.0.0:5000
+CMD gunicorn --worker-class=gevent --worker-connections=1000 --workers=3 --threads=2 wsgi:client_app --threads 2 -b 0.0.0.0:5000
