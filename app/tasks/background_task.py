@@ -1,3 +1,5 @@
+from os import environ
+
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
 import requests
@@ -13,6 +15,11 @@ calculate_hype = "/calculate_hype_score"
 calculate_financial_history = "/calculate_financial_history_all"
 periodic_update = "/scrape_coins_range"
 
+USERNAME = environ.get('MANAGE_USER')
+PASSWORD = environ.get('MANAGE_PASSWORD')
+if USERNAME is None or PASSWORD is None:
+    USERNAME = "user"
+    PASSWORD = "test"
 
 def scrape_marketcap():
     logger.info("Rescraping coinmarketcap")
@@ -36,12 +43,12 @@ def recalculate_financial_history():
 
 def periodical_refresh():
     logger.info("Periodic refresh")
-    requests.post(url=uri + periodic_update)
+    requests.post(url=uri + periodic_update, auth=(USERNAME, PASSWORD))
 
 
 def run_scheduled_tasks():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=periodical_refresh, trigger="cron", hour='*', minute='0,15,30,45')
+    #scheduler.add_job(func=periodical_refresh, trigger="cron", hour='*', minute='0,15,30,51')
     scheduler.start()
 
     atexit.register(lambda: scheduler.shutdown())

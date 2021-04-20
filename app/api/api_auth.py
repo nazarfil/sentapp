@@ -1,10 +1,18 @@
 # Basic auth
+from os import environ
+
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = HTTPBasicAuth()
+USERNAME = environ.get('MANAGE_USER')
+PASSWORD = environ.get('MANAGE_PASSWORD')
+if USERNAME is None or PASSWORD is None:
+    USERNAME = "user"
+    PASSWORD = "test"
+
 users = {
-    "nazar": generate_password_hash("hello")
+    USERNAME: generate_password_hash(PASSWORD)
 }
 
 @auth.verify_password

@@ -36,8 +36,8 @@ def query_join_input_and_sentiment_by_name(name):
         InputData.name == name).all()
 
 
-def query_table_view():
-    return db.session.query(TableView).filter(TableView.relative_hype is not None).all()
+def query_table_view(date):
+    return db.session.query(TableView).filter(TableView.relative_hype is not None, TableView.date == date).all()
 
 
 def get_min_max_score():
