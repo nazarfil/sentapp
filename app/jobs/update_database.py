@@ -50,11 +50,11 @@ def update_order():
     tables = db.session.query(TableView).order_by(TableView.absolute_hype.desc()).all()
     tables2 = db.session.query(TableView).order_by(TableView.market_cap.desc()).all()
     coins = InputData.query.all()
-    table_dict ={}
+    table_dict = {}
     for i, table in enumerate(tables):
-        table_dict[table.name] = {"order": i+1}
+        table_dict[table.name] = {"order": i + 1}
     for i, table in enumerate(tables2):
-        table_dict[table.name]["mc"] = i+1
+        table_dict[table.name]["mc"] = i + 1
     for coin in coins:
         if coin.name in table_dict:
             coin.market_cap_id = table_dict[coin.name]["mc"]
@@ -63,3 +63,18 @@ def update_order():
             coin.market_cap_id = len(coins)
             coin.order = len(coins)
     db.session.commit()
+
+
+def update_old_scores():
+    coins = InputData.query.all()
+    end_date = '2021-04-17'
+    for coin in coins:
+        scores = db.session.query(SentimentHypeScore).filter(SentimentHypeScore.date <= end_date,
+                                                             SentimentHypeScore.input_data == coin.id).all()
+        avg = db.session.query(func.avg(SentimentHypeScore.absolute_hype).label('avg_abs'),
+                               func.avg(SentimentHypeScore.count).label('avg_count')).filter(
+            SentimentHypeScore.date <= end_date, SentimentHypeScore.input_data == coin.id).one()
+        for score in scores:
+            score.absolute_hype = score.absolute_hype + avg.avg_abs
+            score.count = score.count + avg.avg_count
+        db.session.commit()

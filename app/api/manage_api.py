@@ -9,7 +9,7 @@ from app.jobs.populate_input_data_job import populate_db_api
 import app.jobs.populate_price_job as price_job
 from app.jobs.twitter_scrape_job import TwitterJob
 from app.jobs.update_database import update_score_count, update_string_id, update_description_of_coins, \
-    update_description_of_coin, update_order
+    update_description_of_coin, update_order, update_old_scores
 from app.scraper.coinmarketcap.coinmarketcap_scraper import extract_to_mem
 from app.utility.formats import foramt_Y_M_D
 from flask import request
@@ -136,4 +136,10 @@ def update_orders():
 def update_description_by_name(coin):
     name = request.args.get('name', default=coin, type=str)
     update_description_of_coin(coin, name)
+    return jsonify({'status': "Request was processed"})
+
+@manage_bp.route("udpate_old_scores", methods=["POST"])
+@auth.login_required()
+def update_scores():
+    update_old_scores()
     return jsonify({'status': "Request was processed"})

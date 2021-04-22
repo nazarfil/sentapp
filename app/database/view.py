@@ -1,6 +1,6 @@
 # attaches the view to the metadata using the select statement
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Numeric, String, Date
+from sqlalchemy import Column, Numeric, String, Date, Integer
 
 from app.database.models import SentimentHypeScore, InputData, FinancialData
 
@@ -15,7 +15,8 @@ class TableView(Base):
     ticker = Column(String(32))
     market_cap = Column(String(32))
     price = Column(String(32))
-    order = Column(String(32))
+    order = Column(Integer)
+    market_cap_id = Column(Integer)
     absolute_hype = Column(Numeric)
     absolute_hype_24delta = Column(Numeric)
     relative_hype = Column(Numeric)
@@ -32,6 +33,7 @@ class TableView(Base):
             ticker=self.ticker,
             price=float(self.get_price()),
             market_cap=float(self.get_market_cap()),
+            market_cap_id=self.market_cap_id,
             absolute_hype=float(self.get_abs_hyp()),
             absolute_hype_24delta=float(self.get_abs24()),
             relative_hype=float(self.get_rel_hyp()),
@@ -108,5 +110,5 @@ def create_view_statement(db_instance):
         .select_from(SentimentHypeScore.__table__.join(max_date, (SentimentHypeScore.date == max_date.c.max_date) & (
             SentimentHypeScore.input_data == max_date.c.input_id))) \
         .subquery()
-    return db_instance.select([find_data, hype_score, InputData.ticker, InputData.name, InputData.order]) \
+    return db_instance.select([find_data, hype_score, InputData.ticker, InputData.name, InputData.order, InputData.market_cap_id]) \
         .where(InputData.id == hype_score.c.input_data).where(find_data.c.in_id == hype_score.c.input_data)
