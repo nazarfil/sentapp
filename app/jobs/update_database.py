@@ -4,6 +4,7 @@ from sqlalchemy import and_, func
 from app.database.view import TableView
 from app.scraper.coingecko.cg_service import CgService
 from app.scraper.messari.messari_scraper import get_messari_description
+from app.scraper.reddit.reddit_client import RedditClient
 
 cg = CgService()
 
@@ -73,8 +74,18 @@ def update_old_scores():
                                                              SentimentHypeScore.input_data == coin.id).all()
         avg = db.session.query(func.avg(SentimentHypeScore.absolute_hype).label('avg_abs'),
                                func.avg(SentimentHypeScore.count).label('avg_count')).filter(
-            SentimentHypeScore.date <= end_date, SentimentHypeScore.input_data == coin.id).one()
+            SentimentHypeScore.date > end_date, SentimentHypeScore.input_data == coin.id).one()
         for score in scores:
-            score.absolute_hype = score.absolute_hype + avg.avg_abs
+            score.absolute_hype = score.absolute_hype + abs(avg.avg_abs)
             score.count = score.count + avg.avg_count
+            db.session.commit()
+
+
+def update_redditors():
+    coins = InputData.query.all()
+    reddit = RedditClient()
+    for coin in coins:
+        lower_name = coin.name.lower()
+        subs = reddit.get_profile(lower_name)
+        coin.redditors = subs
         db.session.commit()
