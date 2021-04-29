@@ -43,14 +43,14 @@ def query_table_view(date):
 
 
 def get_min_max_score():
-    max_abs = db.session.query(TableView).order_by(TableView.absolute_hype.desc()).first()
+    max_abs = db.session.query(TableView).order_by(TableView.absolute_hype.desc()).limit(5).all()
     min_abs = db.session.query(TableView).order_by(TableView.absolute_hype.asc()).first()
     max_rel = db.session.query(TableView).order_by(TableView.relative_hype.desc()).first()
     min_rel = db.session.query(TableView).order_by(TableView.relative_hype.asc()).first()
     max_count = db.session.query(TableView).order_by(TableView.count.desc()).first()
     min_count = db.session.query(TableView).order_by(TableView.count.asc()).first()
     return {
-        "max_absolute_hype": (max_abs.serialized),
+        "max_absolute_hype": [ma.serialized for ma in max_abs],
         "min_absolute_hype": (min_abs.serialized),
         "max_relative_hype": (max_rel.serialized),
         "min_relative_hype": (min_rel.serialized),
@@ -144,3 +144,4 @@ def get_best_tweets(name, date):
     except:
         log.error("Not such coin")
     return tweets
+
