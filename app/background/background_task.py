@@ -55,7 +55,7 @@ def periodical_refresh():
 def run_scheduled_tasks():
     scheduler = BackgroundScheduler()
     scheduler.add_job(func=periodical_refresh, trigger="cron", hour='*', minute='0,15,30,51')
-    scheduler.add_job(func=update_reddit, trigger="cron", day='*', hour='15')
+    scheduler.add_job(func=update_reddit, trigger="cron", day='*', hour='18', minute='55')
     scheduler.start()
 
     atexit.register(lambda: scheduler.shutdown())
