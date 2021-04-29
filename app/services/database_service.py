@@ -1,5 +1,6 @@
 from multiprocessing import Process
 
+from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
 from app.log import setup_default_logger
@@ -37,7 +38,8 @@ def query_join_input_and_sentiment_by_name(name):
 
 
 def query_table_view(date):
-    return db.session.query(TableView).filter(TableView.relative_hype is not None, TableView.date == date).all()
+    last_date = db.session.query(func.max(TableView.date)).one()
+    return db.session.query(TableView).filter(TableView.relative_hype is not None, TableView.date == last_date).all()
 
 
 def get_min_max_score():
@@ -127,7 +129,7 @@ def get_best_tweets(name, date):
     tomorrow = datetime.strptime(date, '%Y-%m-%d') + timedelta(days=1)
     try:
         coin = db.session.query(InputData).filter_by(name=name).one()
-        best_tweets = db.session.query(ScrapedData, TwitterDataMetric) \
+        best_tweets = db.session.query(func.distinct(ScrapedData.source_id), TwitterDataMetric.followers) \
             .filter(ScrapedData.input_data == coin.id, ScrapedData.date > date, ScrapedData.date < tomorrow) \
             .filter(TwitterDataMetric.scraped_data == ScrapedData.id).order_by(
             TwitterDataMetric.followers.desc()).limit(
@@ -135,8 +137,8 @@ def get_best_tweets(name, date):
 
         for tweet in best_tweets:
             tweet_metric = {
-                "twitter_id": tweet[0].source_id,
-                "followers": tweet[1].followers
+                "twitter_id": tweet[0],
+                "followers": tweet[1]
             }
             tweets.append(tweet_metric)
     except:
