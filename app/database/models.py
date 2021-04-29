@@ -15,7 +15,7 @@ class InputData(db.Model):
     description = db.Column(db.Text)
     string_id = db.Column(db.String(32))
     market_cap_id = db.Column(db.Integer)
-    redditors = db.Column(db.Integer)
+    reddit_url = db.Column(db.String(32))
 
     def __init__(self, **kwargs):
         super(InputData, self).__init__(**kwargs)
@@ -26,7 +26,7 @@ class InputData(db.Model):
 
     @property
     def serialized(self):
-        """Return object data in serializeable format"""
+        """Return object data in serializable format"""
         return dict(id=self.string_id,
                     name=self.name,
                     date=self.date,
@@ -35,7 +35,7 @@ class InputData(db.Model):
                     order=self.order,
                     description=self.description,
                     market_cap_id=self.market_cap_id,
-                    redditors=self.redditors
+                    reddit_url=self.redditors
                     )
 
 
@@ -57,13 +57,35 @@ class FinancialData(db.Model):
 
     @property
     def serialized(self):
-        """Return object data in serializeable format"""
+        """Return object data in serializable format"""
         return dict(id=self.id,
                     volume=self.volume,
                     date=self.date,
                     price=self.price,
                     market_cap=self.market_cap,
                     input_data=self.input_data)
+
+
+class RedditMetrics(db.Model):
+    __tablename__ = 'reddit_metrics'
+    id = db.Column(db.Integer, primary_key=True)
+    input_data = db.Column(db.Integer, db.ForeignKey('input_data.id'))
+    subscribers = db.Column(db.Integer)
+    date = db.Column(db.Date)
+
+    def __init__(self, **kwargs):
+        super(RedditMetrics, self).__init__(**kwargs)
+        # do custom stuff
+
+    def __repr__(self):
+        return '<RedditMetrics {}>'.format(self.text)
+
+    @property
+    def serialized(self):
+        """Return object data in serializeable format"""
+        return dict(id=self.id,
+                    subscribers=self.subscribers,
+                    date=self.date)
 
 
 class ScrapedData(db.Model):

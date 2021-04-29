@@ -14,6 +14,7 @@ scrape_coins = "/scrape_coins"
 calculate_hype = "/calculate_hype_score"
 calculate_financial_history = "/calculate_financial_history_all"
 periodic_update = "/scrape_coins_range"
+update_reddit = "/update_redditors"
 
 USERNAME = environ.get('MANAGE_USER')
 PASSWORD = environ.get('MANAGE_PASSWORD')
@@ -21,10 +22,15 @@ if USERNAME is None or PASSWORD is None:
     USERNAME = "user"
     PASSWORD = "test"
 
+
 def scrape_marketcap():
     logger.info("Rescraping coinmarketcap")
     requests.post(url=uri + refresh)
 
+
+def update_reddit():
+    logger.info("Rescraping reddit")
+    requests.post(url=uri + update_reddit)
 
 def scrape_twitter_and_add_scores():
     logger.info("Rescraping twitter and calculating scores")
@@ -49,12 +55,7 @@ def periodical_refresh():
 def run_scheduled_tasks():
     scheduler = BackgroundScheduler()
     scheduler.add_job(func=periodical_refresh, trigger="cron", hour='*', minute='0,15,30,51')
-    scheduler.add_job(func=scrape_marketcap, trigger="cron", day='*', hour='6')
+    scheduler.add_job(func=update_reddit, trigger="cron", day='*', hour='15')
     scheduler.start()
 
     atexit.register(lambda: scheduler.shutdown())
-    #scheduler.add_job(func=scrape_marketcap, trigger="cron", hour='*', minute='10')
-    #scheduler.add_job(func=scrape_twitter_and_add_scores, trigger="cron", day='*', hour=23, minute=1, second=0)
-    #scheduler.add_job(func=recalculate_hype, trigger="cron", day='*', hour=0, minute=1, second=0)
-    #scheduler.add_job(func=recalculate_financial_history, trigger="cron", day='*', hour=0, minute=10, second=0)
-    # Shut down the scheduler when exiting the app

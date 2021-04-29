@@ -1,10 +1,13 @@
-from app.database.models import SentimentHypeScore, SentimentScore, db, InputData
+from datetime import datetime
+
+from app.database.models import SentimentHypeScore, SentimentScore, db, InputData, RedditMetrics
 from sqlalchemy import and_, func
 
 from app.database.view import TableView
 from app.scraper.coingecko.cg_service import CgService
 from app.scraper.messari.messari_scraper import get_messari_description
 from app.scraper.reddit.reddit_client import RedditClient
+from app.utility.formats import foramt_Y_M_D
 
 cg = CgService()
 
@@ -81,11 +84,25 @@ def update_old_scores():
             db.session.commit()
 
 
-def update_redditors():
+def update_reddit_url():
     coins = InputData.query.all()
-    reddit = RedditClient()
     for coin in coins:
         lower_name = coin.name.lower()
-        subs = reddit.get_profile(lower_name)
-        coin.redditors = subs
+        coin.reddit_url = lower_name
         db.session.commit()
+
+
+def update_reddit_count():
+    coins = InputData.query.all()
+    reddit = RedditClient()
+    today = datetime.today().date().strftime(foramt_Y_M_D)
+    for coin in coins:
+        subs = reddit.get_profile(coin.reddit_url)
+        if subs != 0:
+            try:
+                existing = db.session.query(RedditMetrics).filter(RedditMetrics.input_data==coin.id, RedditMetrics.date==today).one()
+                existing.subscribers=subs
+            except:
+                record = RedditMetrics(input_data=coin.id, subscribers=subs, date=today)
+                db.session.add(record)
+            db.session.commit()

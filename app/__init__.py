@@ -12,7 +12,7 @@ import app.services.database_service as db_service
 
 from flask import Flask
 from app.config import Config
-from app.tasks.background_task import run_scheduled_tasks
+from app.background.background_task import run_scheduled_tasks
 from flasgger import Swagger
 
 migrate = Migrate()
