@@ -50,12 +50,13 @@ def get_min_max_score():
     max_count = db.session.query(TableView).order_by(TableView.count.desc()).first()
     min_count = db.session.query(TableView).order_by(TableView.count.asc()).first()
     return {
-        "max_absolute_hype": [ma.serialized for ma in max_abs],
+        "max_absolute_hype": max_abs[0].serialized,
         "min_absolute_hype": (min_abs.serialized),
         "max_relative_hype": (max_rel.serialized),
         "min_relative_hype": (min_rel.serialized),
         "max_count": (max_count.serialized),
-        "min_count": (min_count.serialized)
+        "min_count": (min_count.serialized),
+        "top5_hype": [ma.serialized for ma in max_abs]
     }
 
 

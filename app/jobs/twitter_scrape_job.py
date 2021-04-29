@@ -19,7 +19,7 @@ class TwitterJob(object):
     """
 
     def __init__(self):
-        self.MAX_TWEETS = 5
+        self.MAX_TWEETS = 3
         self.MAX_TWEETS_ALL = 10
         self.MAX_POOL_REQUEST = 450
 

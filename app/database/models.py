@@ -35,7 +35,7 @@ class InputData(db.Model):
                     order=self.order,
                     description=self.description,
                     market_cap_id=self.market_cap_id,
-                    reddit_url=self.redditors
+                    reddit_url=self.reddit_url
                     )
 
 
