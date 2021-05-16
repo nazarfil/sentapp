@@ -28,7 +28,7 @@ def scrape_marketcap():
     requests.post(url=uri + refresh)
 
 
-def update_reddit():
+def update_reddit_call():
     logger.info("Rescraping reddit")
     requests.post(url=uri + update_reddit)
 
@@ -54,8 +54,8 @@ def periodical_refresh():
 
 def run_scheduled_tasks():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=periodical_refresh, trigger="cron", hour='*', minute='0,15,30,51')
-    scheduler.add_job(func=update_reddit, trigger="cron", day='*', hour='18', minute='55')
+    scheduler.add_job(func=periodical_refresh, trigger="cron", hour='*', minute='1,33')
+    scheduler.add_job(func=update_reddit_call, trigger="cron", day='*', hour='18')
     scheduler.start()
 
     atexit.register(lambda: scheduler.shutdown())

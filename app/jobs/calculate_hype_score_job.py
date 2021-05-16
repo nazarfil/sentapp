@@ -4,7 +4,6 @@ from app.database.models import SentimentScore, db, InputData, SentimentHypeScor
 from sqlalchemy.sql import func
 
 from app.log import setup_custom_logger
-from app.utility.formats import foramt_Y_M_D
 
 logger = setup_custom_logger("jobs")
 

@@ -25,7 +25,7 @@ def search_twitter(query, **kwargs):
             if response.status_code == 429 or response.status_code == 400:
                 logger.debug("Calling twitter resulted in : {}".format(response.status_code))
             status_code = response.status_code
-            calls_count+=1
+            calls_count += 1
     except:
         return {}
     try:
@@ -34,4 +34,3 @@ def search_twitter(query, **kwargs):
         return {}
 
     return response
-

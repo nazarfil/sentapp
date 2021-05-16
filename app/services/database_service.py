@@ -146,3 +146,18 @@ def get_best_tweets(name, date):
         log.error("Not such coin")
     return tweets
 
+
+def get_top_6():
+    subq_rank = db.session(
+        SentimentHypeScore,
+    func.rank().over(
+        order_by=SentimentHypeScore.absolute_hype.desc(),
+        partition_by=SentimentHypeScore.date).label('RANK')
+    ).subquery.all()
+    top_sentiments = query = db.session.query(subq_rank).filter(subq_rank.rank <6)
+"""
+select ranked_scores.date,ranked_scores.input_data, ranked_scores.rank, ranked_scores.absolute_hype from
+(SELECT sentiment_hype_score.*,
+  rank() OVER (PARTITION BY date ORDER BY absolute_hype DESC)
+  FROM sentiment_hype_score) ranked_scores  where rank <=6
+"""

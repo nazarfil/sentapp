@@ -96,6 +96,12 @@ def get_best_tweets(name):
     response.headers['Access-Control-Allow-Origin'] = origin
     return response
 
+@client_bp.route('info/top_scores')
+def get_top_scores():
+    top6 = db_service.get_top_6()
+    response = make_response(jsonify({"top6": top6}))
+    response.headers['Access-Control-Allow-Origin'] = origin
+    return response
 
 @client_bp.route('global')
 @swag_from('/app/api/swagger/global.yml')
@@ -104,3 +110,4 @@ def get_blobal():
     response = make_response(jsonify({"global": {"min_max": min_max}}))
     response.headers['Access-Control-Allow-Origin'] = origin
     return response
+

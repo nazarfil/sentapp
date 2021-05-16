@@ -22,16 +22,41 @@ def get_tweets_for_range(input_data, start_date, end_date, next_token):
 
 
 def build_tweet_query(input_data):
-    common_names = ["Avalanche", "Dash", "Maker", "Compound", "Waves", "Dent", "Neo", "Harmony", "ICON",
-                    "Dai","Terra", "Polygon","Cosmos","EOS","UMA"]
-
     ticker = input_data.ticker
     name = input_data.name
-    url_encoded_hashtag = "%23"
-    if name in common_names:
-        name = url_encoded_hashtag + name
 
-    return "({} OR {}{} OR {}{}) and -is:retweet".format(name, url_encoded_hashtag, ticker , url_encoded_hashtag, ticker.lower())
+    end_query = ""
+
+    name_query = add_name_if_not_common(name)
+    ticker_query = add_ticker_if_not_common(ticker)
+    if not name_query:
+        end_query = ticker_query
+    else:
+        end_query = "{} OR {}".format(name_query, ticker_query)
+
+    return "({}) and -is:retweet".format(end_query)
+
+
+def add_name_if_not_common(name):
+    name = name.strip()
+    name = name.replace(" ", "")
+    usable = ["Avalanche", "DENT", "THETA", "TRON", "Terra"]
+    common_names = ["Dash", "Maker", "Compound", "Waves", "Neo", "Harmony", "ICON",
+                    "Dai", "Polygon", "Cosmos", "EOS", "UMA", "ICON", "Ontology", "Stacks"]
+
+    if name in common_names:
+        return ""
+    else:
+        if name in usable:
+            return "%23" + name
+        else:
+            return name
+
+
+def add_ticker_if_not_common(ticker):
+    common_tickers = ["SUSHI", "CAKE", "DASH", "LEO", "DAI", "WAVES", "luna", "OMG", "COMP", "DENT", "ONE", "NEO"]
+    if ticker not in common_tickers:
+        return "%23" + ticker
 
 
 def get_datetime_from_string(date):
