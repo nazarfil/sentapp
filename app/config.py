@@ -8,6 +8,7 @@ load_dotenv(path.join(basedir, '.env'))
 
 
 class Config:
+
     """Set Flask configuration from .env file."""
 
     # General Config
@@ -33,3 +34,18 @@ class Config:
     #CELERY QUEU ENDPOINT
     CELERY_BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+    #
+    CRYPTOCOMPARE_TOKEN = environ.get("CRYPTOCOMPARE_TOKEN")
+
+    #OAUTH
+    API_OAUTH_USERNAME = environ.get('MANAGE_USER')
+    API_OAUTH_PASSWORD = environ.get('MANAGE_PASSWORD')
+    if API_OAUTH_USERNAME is None or API_OAUTH_PASSWORD is None:
+        API_OAUTH_USERNAME = "user"
+        API_OAUTH_PASSWORD = "test"
+
+    #AWS CONFIG
+    USE_FOREIGN_AWS=environ.get('USE_FOREIGN_AWS')
+    AWS_SECRET_KEY=environ.get('AWS_SECRET_KEY')
+    AWS_ACCESS_KEY=environ.get('AWS_ACCESS_KEY')

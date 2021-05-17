@@ -4,7 +4,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
 import requests
 
-from app import log
+from app import log, Config
 
 logger = log.setup_custom_logger('scheduled')
 
@@ -16,11 +16,9 @@ calculate_financial_history = "/calculate_financial_history_all"
 periodic_update = "/scrape_coins_range"
 update_reddit = "/update_redditors"
 
-USERNAME = environ.get('MANAGE_USER')
-PASSWORD = environ.get('MANAGE_PASSWORD')
-if USERNAME is None or PASSWORD is None:
-    USERNAME = "user"
-    PASSWORD = "test"
+config = Config()
+USERNAME = config.API_OAUTH_USERNAME
+PASSWORD = config.API_OAUTH_PASSWORD
 
 
 def scrape_marketcap():
