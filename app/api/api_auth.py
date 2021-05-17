@@ -4,7 +4,7 @@ from os import environ
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app import Config
+from app.config import Config
 
 auth = HTTPBasicAuth()
 

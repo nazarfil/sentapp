@@ -1,5 +1,6 @@
 import requests
-from app import log, Config
+from app import log
+from app.config import Config
 
 url_for_recent_tweets = "https://api.twitter.com/2/tweets/search/recent?query={}&{}"
 logger = log.setup_custom_logger('scraper')

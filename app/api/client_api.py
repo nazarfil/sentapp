@@ -3,7 +3,7 @@ from os import environ
 from flasgger import swag_from
 
 import app.services.database_service as db_service
-from app import Config
+from app.config import Config
 from app.services.sparkline_service import draw_sparklines
 from app.utility.resources.data import data_demo
 from flask import make_response

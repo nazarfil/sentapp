@@ -1,6 +1,6 @@
 import boto3
 
-from app import Config
+from app.config import Config
 
 
 class AwsClient:
