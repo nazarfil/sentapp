@@ -3,6 +3,7 @@ from os import environ
 from flasgger import swag_from
 
 import app.services.database_service as db_service
+from app import Config
 from app.services.sparkline_service import draw_sparklines
 from app.utility.resources.data import data_demo
 from flask import make_response
@@ -13,13 +14,9 @@ from app.utility.formats import foramt_Y_M_D
 from flask import request
 
 client_bp = Blueprint('/api', __name__, url_prefix='/api')
-origin_prod = 'https://coin.sentimentcap.com'
-origin_dev = '*'
-origin = origin_dev
-FLASK_ENV = environ.get('FLASK_ENV')
-if FLASK_ENV is not None:
-    if FLASK_ENV=="production":
-        origin = origin_prod
+
+config = Config()
+
 
 # CLIENT API
 @client_bp.route('coins', methods=['GET'])
@@ -36,7 +33,7 @@ def get_coins():
 def get_coins_by_name(name):
     coin = db_service.query_input_data(name)
     response = make_response(jsonify({'data': coin}))
-    response.headers['Access-Control-Allow-Origin'] = origin
+    response.headers['Access-Control-Allow-Origin'] = get_origin()
     return response
 
 
@@ -54,7 +51,7 @@ def get_hype():
     date = request.args.get('date', default=today, type=str)
     hypes = db_service.query_table_view(date)
     response = make_response(jsonify([hype.serialized for hype in hypes]))
-    response.headers['Access-Control-Allow-Origin'] = origin
+    response.headers['Access-Control-Allow-Origin'] = get_origin()
     return response
 
 
@@ -62,7 +59,7 @@ def get_hype():
 @swag_from('/app/api/swagger/coins.yml')
 def get_demo_table():
     response = make_response(jsonify(data_demo))
-    response.headers['Access-Control-Allow-Origin'] = origin
+    response.headers['Access-Control-Allow-Origin'] = get_origin()
     return response
 
 
@@ -82,7 +79,7 @@ def get_history_hype_score(name):
     graph_types = request.args.get('graph', default='absolute_hype,count,relative_hype', type=str)
     history_scores = db_service.get_history_score(name, start_date, end_date, graph_types)
     response = make_response(jsonify(history_scores))
-    response.headers['Access-Control-Allow-Origin'] = origin
+    response.headers['Access-Control-Allow-Origin'] = get_origin()
     return response
 
 
@@ -93,21 +90,30 @@ def get_best_tweets(name):
     date = request.args.get('date', default=today, type=str)
     best_tweets = db_service.get_best_tweets(name, date)
     response = make_response(jsonify({"best_tweets": best_tweets}))
-    response.headers['Access-Control-Allow-Origin'] = origin
+    response.headers['Access-Control-Allow-Origin'] = get_origin()
     return response
+
 
 @client_bp.route('info/top_scores')
 def get_top_scores():
     top6 = db_service.get_top_6()
     response = make_response(jsonify({"top6": top6}))
-    response.headers['Access-Control-Allow-Origin'] = origin
+    response.headers['Access-Control-Allow-Origin'] = get_origin()
     return response
+
 
 @client_bp.route('global')
 @swag_from('/app/api/swagger/global.yml')
 def get_blobal():
     min_max = db_service.get_min_max_score()
     response = make_response(jsonify({"global": {"min_max": min_max}}))
-    response.headers['Access-Control-Allow-Origin'] = origin
+    response.headers['Access-Control-Allow-Origin'] = get_origin()
     return response
 
+
+def get_origin():
+    if config.FLASK_ENV is not None:
+        if config.FLASK_ENV == "production":
+            return 'https://coin.sentimentcap.com'
+        else:
+            return '*'
