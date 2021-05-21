@@ -1,7 +1,10 @@
 from datetime import datetime, timedelta
 
+from app import log
 from app.scraper.twitter.twitter_scraper import search_twitter
 from app.utility.formats import *
+
+logger = log.def_logger
 
 
 def get_tweet_for_input(input_data, input_date, next_token='none'):
@@ -40,15 +43,17 @@ def build_tweet_query(input_data):
     else:
         end_query = "{} OR {}".format(name_query, ticker_query)
 
-    return "({}) and -is:retweet".format(end_query)
+    twitter_formatted_query  = "({}) and -is:retweet".format(end_query)
+    logger.info("Default logger is: %s ", twitter_formatted_query)
+    return twitter_formatted_query
 
 
 def add_name_if_not_common(name):
     name = name.strip()
     name = name.replace(" ", "")
-    usable = ["Avalanche", "DENT", "THETA", "TRON", "Terra","Polygon", "SushiSwap"]
+    usable = ["Avalanche", "DENT", "THETA", "TRON", "Terra", "Polygon", "HOLO"]
     common_names = ["Dash", "Maker", "Compound", "Waves", "Neo", "Harmony", "ICON",
-                    "Dai", "Cosmos", "EOS", "UMA", "ICON", "Ontology", "Stacks","Solana"]
+                    "Dai", "Cosmos", "EOS", "UMA", "ICON", "Ontology", "Stacks","Solana","Celsius"]
 
     if name in common_names:
         return ""
@@ -60,7 +65,7 @@ def add_name_if_not_common(name):
 
 
 def add_ticker_if_not_common(ticker):
-    common_tickers = ["SUSHI", "CAKE", "DASH", "LEO", "DAI", "WAVES", "luna", "OMG", "COMP", "DENT", "ONE", "NEO"]
+    common_tickers = ["SUSHI", "CAKE", "DASH", "LEO", "DAI", "WAVES", "luna", "OMG", "COMP", "DENT", "ONE", "NEO","HOT"]
     if ticker not in common_tickers:
         return "%23" + ticker
     else:
