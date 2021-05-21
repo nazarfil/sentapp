@@ -23,11 +23,10 @@ def get_yesterday_data(date, input_data_id):
 
 
 def calculate_hype_score(date, input_data_id):
-    logger.info("Recalculating hype score for ", input_data_id)
+    logger.info("Recalculating hype score for {}".format(input_data_id))
     tomorrow = datetime.strptime(date, '%Y-%m-%d') + timedelta(days=1)
-    count_today, sum_mixed, sum_negative, sum_neutral, sum_positive = get_score_today_sum(date, input_data_id,
-                                                                                          tomorrow)
 
+    count_today, sum_mixed, sum_negative, sum_neutral, sum_positive = get_score_today_sum(date, input_data_id, tomorrow)
     count_yesterday, rel_hype_yesterday, abs_hype_yesterday = get_yesterday_data(date, input_data_id)
 
     if (sum_positive.sum is not None) and (sum_negative.sum is not None) and (sum_mixed.sum is not None) and (
@@ -68,27 +67,33 @@ def calculate_hype_score(date, input_data_id):
 
 
 def get_score_today_sum(date, input_data_id, tomorrow):
-    sum_positive = db.session.query(func.sum(SentimentScore.positive).label('sum')).filter(SentimentScore.date > date,
-                                                                                           SentimentScore.date < tomorrow,
-                                                                                           SentimentScore.input_data == input_data_id).one()
-    sum_negative = db.session.query(func.sum(SentimentScore.negative).label('sum')).filter(SentimentScore.date > date,
-                                                                                           SentimentScore.date < tomorrow,
-                                                                                           SentimentScore.input_data == input_data_id).one()
-    sum_neutral = db.session.query(func.sum(SentimentScore.neutral).label('sum')).filter(SentimentScore.date > date,
+    try:
+        sum_positive = db.session.query(func.sum(SentimentScore.positive).label('sum')).filter(
+            SentimentScore.date > date,
+            SentimentScore.date < tomorrow,
+            SentimentScore.input_data == input_data_id).one()
+        sum_negative = db.session.query(func.sum(SentimentScore.negative).label('sum')).filter(
+            SentimentScore.date > date,
+            SentimentScore.date < tomorrow,
+            SentimentScore.input_data == input_data_id).one()
+        sum_neutral = db.session.query(func.sum(SentimentScore.neutral).label('sum')).filter(SentimentScore.date > date,
+                                                                                             SentimentScore.date < tomorrow,
+                                                                                             SentimentScore.input_data == input_data_id).one()
+        sum_mixed = db.session.query(func.sum(SentimentScore.mixed).label('sum')).filter(SentimentScore.date > date,
                                                                                          SentimentScore.date < tomorrow,
                                                                                          SentimentScore.input_data == input_data_id).one()
-    sum_mixed = db.session.query(func.sum(SentimentScore.mixed).label('sum')).filter(SentimentScore.date > date,
-                                                                                     SentimentScore.date < tomorrow,
-                                                                                     SentimentScore.input_data == input_data_id).one()
-    count_today = db.session.query(SentimentScore).filter(SentimentScore.date > date, SentimentScore.date < tomorrow,
-                                                          SentimentScore.input_data == input_data_id).count()
-    return count_today, sum_mixed, sum_negative, sum_neutral, sum_positive
+        count_today = db.session.query(SentimentScore).filter(SentimentScore.date > date,
+                                                              SentimentScore.date < tomorrow,
+                                                              SentimentScore.input_data == input_data_id).count()
+        return count_today, sum_mixed, sum_negative, sum_neutral, sum_positive
+    except:
+        return 0, 0, 0, 0
 
 
 def hype_score_for_coin(name, date):
     input_data = InputData.query.filter_by(name=name).one()
     if input_data is not None:
-        calculate_hype_score(date=date, input_data_id=input_data)
+        calculate_hype_score(date=date, input_data_id=input_data.id)
 
 
 def hype_score_for_all_coins(date):
