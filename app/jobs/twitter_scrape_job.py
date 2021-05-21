@@ -138,6 +138,7 @@ class TwitterJob(object):
         users = tweets["includes"]["users"]
         for tweet in tweets["data"]:
             scraped_record = self.create_scraped_data_from_twitter(tweet, users, coin_id=coin.id)
+            tweets_list.append(scraped_record)
             db.session.add(scraped_record)
             db.session.commit()
         return tweets_list

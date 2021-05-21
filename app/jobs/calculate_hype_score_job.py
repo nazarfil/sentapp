@@ -29,41 +29,45 @@ def calculate_hype_score(date, input_data_id):
     count_today, sum_mixed, sum_negative, sum_neutral, sum_positive = get_score_today_sum(date, input_data_id, tomorrow)
     count_yesterday, rel_hype_yesterday, abs_hype_yesterday = get_yesterday_data(date, input_data_id)
 
-    if (sum_positive.sum is not None) and (sum_negative.sum is not None) and (sum_mixed.sum is not None) and (
-            sum_neutral.sum is not None):
-        absolute_hype = sum_positive.sum + sum_mixed.sum - sum_negative.sum
-        relative_hype = (sum_positive.sum + sum_mixed.sum) / sum_negative.sum
+    absolute_hype = sum_positive + sum_mixed - sum_negative
+    relative_hype = (sum_positive + sum_mixed) / sum_negative
 
-        delta_count = 100 * (count_today - count_yesterday) / count_yesterday
-        delta_rel_hype = 100 * (absolute_hype - abs_hype_yesterday) / abs_hype_yesterday
-        delta_abs_hype = 100 * (relative_hype - rel_hype_yesterday) / rel_hype_yesterday
+    delta_count = 100 * (count_today - count_yesterday) / count_yesterday
+    delta_rel_hype = 100 * (absolute_hype - abs_hype_yesterday) / abs_hype_yesterday
+    delta_abs_hype = 100 * (relative_hype - rel_hype_yesterday) / rel_hype_yesterday
 
-        hype_record = SentimentHypeScore(
-            input_data=input_data_id,
-            absolute_hype=absolute_hype,
-            absolute_hype_24delta=delta_abs_hype,
-            relative_hype=relative_hype,
-            relative_hype_24delta=delta_rel_hype,
-            count=count_today,
-            count_24delta=delta_count,
-            date=date
-        )
-        try:
-            existing = db.session.query(SentimentHypeScore).filter_by(input_data=input_data_id, date=date).first()
-            existing.input_data = input_data_id
-            existing.absolute_hype = absolute_hype
-            existing.absolute_hype_24delta = delta_abs_hype
-            existing.relative_hype = relative_hype
-            existing.relative_hype_24delta = delta_rel_hype
-            existing.count = count_today
-            existing.count_24delta = delta_count
-            existing.date = date
-            db.session.commit()
-        except:
-            db.session.add(hype_record)
-            db.session.commit()
-        finally:
-            logger.info("Added hype score for {} and {}".format(input_data_id, date))
+    create_or_updatehype_score_record(absolute_hype, count_today, date, delta_abs_hype, delta_count, delta_rel_hype,
+                                      input_data_id, relative_hype)
+
+
+def create_or_updatehype_score_record(absolute_hype, count_today, date, delta_abs_hype, delta_count, delta_rel_hype,
+                                      input_data_id, relative_hype):
+    hype_record = SentimentHypeScore(
+        input_data=input_data_id,
+        absolute_hype=absolute_hype,
+        absolute_hype_24delta=delta_abs_hype,
+        relative_hype=relative_hype,
+        relative_hype_24delta=delta_rel_hype,
+        count=count_today,
+        count_24delta=delta_count,
+        date=date
+    )
+    try:
+        existing = db.session.query(SentimentHypeScore).filter_by(input_data=input_data_id, date=date).first()
+        existing.input_data = input_data_id
+        existing.absolute_hype = absolute_hype
+        existing.absolute_hype_24delta = delta_abs_hype
+        existing.relative_hype = relative_hype
+        existing.relative_hype_24delta = delta_rel_hype
+        existing.count = count_today
+        existing.count_24delta = delta_count
+        existing.date = date
+        db.session.commit()
+    except:
+        db.session.add(hype_record)
+        db.session.commit()
+    finally:
+        logger.info("Added hype score for {} and {}".format(input_data_id, date))
 
 
 def get_score_today_sum(date, input_data_id, tomorrow):
@@ -85,9 +89,9 @@ def get_score_today_sum(date, input_data_id, tomorrow):
         count_today = db.session.query(SentimentScore).filter(SentimentScore.date > date,
                                                               SentimentScore.date < tomorrow,
                                                               SentimentScore.input_data == input_data_id).count()
-        return count_today, sum_mixed, sum_negative, sum_neutral, sum_positive
+        return count_today, sum_mixed.sum, sum_negative.sum, sum_neutral.sum, sum_positive.sum
     except:
-        return 0, 0, 0, 0
+        return 0, 0.0, 0.0, 0.0
 
 
 def hype_score_for_coin(name, date):
