@@ -6,7 +6,7 @@ import requests
 
 from app import log, Config
 
-logger = log.setup_custom_logger('scheduled')
+logger = log.def_logger
 
 uri = "http://localhost:5000/api/manage"
 refresh = "/refresh_coins"

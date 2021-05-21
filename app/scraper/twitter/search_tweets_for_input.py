@@ -31,11 +31,12 @@ def build_tweet_query(input_data):
 
     name_query = add_name_if_not_common(name)
     ticker_query = add_ticker_if_not_common(ticker)
-    if not name_query:
-        if not ticker_query:
-            return ""
-        else:
-            end_query = ticker_query
+    if not name_query and not ticker_query :
+        return ""
+    elif not name_query:
+        end_query = ticker_query
+    elif not ticker_query:
+        end_query = name_query
     else:
         end_query = "{} OR {}".format(name_query, ticker_query)
 
@@ -45,7 +46,7 @@ def build_tweet_query(input_data):
 def add_name_if_not_common(name):
     name = name.strip()
     name = name.replace(" ", "")
-    usable = ["Avalanche", "DENT", "THETA", "TRON", "Terra","Polygon"]
+    usable = ["Avalanche", "DENT", "THETA", "TRON", "Terra","Polygon", "SushiSwap"]
     common_names = ["Dash", "Maker", "Compound", "Waves", "Neo", "Harmony", "ICON",
                     "Dai", "Cosmos", "EOS", "UMA", "ICON", "Ontology", "Stacks","Solana"]
 

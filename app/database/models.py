@@ -88,49 +88,32 @@ class RedditMetrics(db.Model):
                     date=self.date)
 
 
-class ScrapedData(db.Model):
-    __tablename__ = 'scraped_data'
+class TwitterData(db.Model):
+    __tablename__ = 'twitter_data'
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(260))
     date = db.Column(db.DateTime)
     source = db.Column(db.String(60))
     source_id = db.Column(db.String(60))
-    input_data = db.Column(db.Integer, db.ForeignKey('input_data.id'))
-
-    def __init__(self, **kwargs) -> object:
-        super(ScrapedData, self).__init__(**kwargs)
-        # do custom stuff
-
-    def __repr__(self):
-        return '<ScrapedData {}>'.format(self.text)
-
-    @property
-    def serialized(self):
-        """Return object data in serializeable format"""
-        return dict(id=self.id, text=self.text, date=self.date, source=self.source, source_id=self.source_id,
-                    input_data=self.input_data)
-
-
-class TwitterDataMetric(db.Model):
-    __tablename__ = 'twitter_data_metrics'
-    id = db.Column(db.Integer, primary_key=True)
-    scraped_data = db.Column(db.Integer, db.ForeignKey('scraped_data.id'))
     followers = db.Column(db.Integer)
     retweet = db.Column(db.Integer)
     replies = db.Column(db.Integer)
     likes = db.Column(db.Integer)
     quotes = db.Column(db.Integer)
+    input_data = db.Column(db.Integer, db.ForeignKey('input_data.id'))
 
-    def __init__(self, **kwargs):
-        super(TwitterDataMetric, self).__init__(**kwargs)
+    def __init__(self, **kwargs) -> object:
+        super(TwitterData, self).__init__(**kwargs)
         # do custom stuff
 
     def __repr__(self):
-        return '<TwitterDataMetric {}>'.format(self.followers)
+        return '<TwitterData {}>'.format(self.text)
 
     @property
     def serialized(self):
-        return dict(followers=self.followers,
+        """Return object data in serializeable format"""
+        return dict(id=self.id, text=self.text, date=self.date, source=self.source, source_id=self.source_id,
+                    input_data=self.input_data,followers=self.followers,
                     retweet=self.retweet,
                     replies=self.replies,
                     likes=self.likes,
@@ -141,6 +124,7 @@ class SentimentScore(db.Model):
     __tablename__ = 'sentiment_score'
     id = db.Column(db.Integer, primary_key=True)
     input_data = db.Column(db.Integer, db.ForeignKey('input_data.id'))
+    twitter_data_id= db.Column(db.Integer, db.ForeignKey('twitter_data.id'))
     sentiment = db.Column(db.String(32))
     positive = db.Column(db.Numeric)
     negative = db.Column(db.Numeric)

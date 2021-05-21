@@ -1,16 +1,17 @@
 import datetime
 
-from app import log
 from app.jobs.calculate_hype_score_job import calculate_hype_score
 from app.jobs.populate_price_job import create_financial_record_for_coins
 from app.jobs.update_database import update_order
 from app.scraper.twitter.search_tweets_for_input import get_tweet_for_input, get_tweets_for_range, format_T_H_M_S_ZZ
-from app.database.models import ScrapedData, InputData, TwitterDataMetric, db, SentimentScore
+from app.database.models import TwitterData, InputData, db, SentimentScore
 from app.algos.sentiment_aws import AwsClient
 
 from app.utility.formats import foramt_Y_M_D
 
-logger = log.setup_custom_logger('jobs')
+
+import app.log as log
+logger = log.def_logger
 
 
 class TwitterJob(object):
@@ -52,8 +53,9 @@ class TwitterJob(object):
             try:
                 self.calculate_score_for_tweet_range(coin=coin, start_date=start_date, end_date=end_date, called=0)
                 calculate_hype_score(date_str, input_data_id=coin.id)
-            except:
+            except Exception as e:
                 logger.error("Error creating score for coin {}".format(str(coin.name)))
+                logger.error(e)
 
         create_financial_record_for_coins(coins, date_str)
         update_order()
@@ -118,7 +120,7 @@ class TwitterJob(object):
                 there_is_next_token = "next_token" in tweets["meta"]
                 if there_is_next_token and called < self.MAX_TWEETS_ALL:
                     token = tweets["meta"]["next_token"]
-                    self.calculate_score_for_tweet(coin, date, called+1, token)
+                    self.calculate_score_for_tweet(coin, date, called + 1, token)
         except:
             logger.error("No results for " + str(coin.name))
 
@@ -135,15 +137,9 @@ class TwitterJob(object):
         tweets_list = []
         users = tweets["includes"]["users"]
         for tweet in tweets["data"]:
-            scraped_record = self.create_scraped_data_from_twitter(tweet, coin_id=coin.id)
+            scraped_record = self.create_scraped_data_from_twitter(tweet, users, coin_id=coin.id)
             db.session.add(scraped_record)
             db.session.commit()
-
-            twitter_metric = self.create_metric_data(tweet, users, scraped_record_id=scraped_record.id)
-            db.session.add(twitter_metric)
-            tweets_list.append(scraped_record)
-            db.session.commit()
-
         return tweets_list
 
     def calculate_sentiment_for_tweet(self, coin, tweet, client=AwsClient()):
@@ -155,33 +151,9 @@ class TwitterJob(object):
         :return:
         """
         sentiment = client.get_sentiment(text=tweet.text)
-        self.assign_score(coin, tweet.date, sentiment, client.name)
+        self.assign_score(coin, tweet, sentiment, client.name)
 
-    def create_metric_data(self, tweet, users, scraped_record_id) -> object:
-        """
-        Creates metric record from tweet and the user
-        :type scraped_record_id: int
-        :param scraped_record_id: tweet record id
-        :type tweet: object
-        :param tweet: tweet for metric
-        :param users: list of users
-        :type users: list
-        :rtype: object
-        """
-        author_id = tweet["author_id"]
-        user = self.find_user(users, author_id)
-        metric = tweet["public_metrics"]
-        return TwitterDataMetric(
-            scraped_data=scraped_record_id,
-            followers=user["public_metrics"]["followers_count"],
-            retweet=metric["retweet_count"],
-            replies=metric["reply_count"],
-            likes=metric["like_count"],
-            quotes=metric["quote_count"]
-        )
-
-    @staticmethod
-    def create_scraped_data_from_twitter(tweet, coin_id) -> object:
+    def create_scraped_data_from_twitter(self, tweet, users, coin_id) -> object:
         """
         Creates record form tweets scraped
         :param tweet: tweet dictionary
@@ -198,11 +170,20 @@ class TwitterJob(object):
 
         if len(text_data) > 260:
             text_data = text_data[0:260]
-        return ScrapedData(text=text_data,
+
+        author_id = tweet["author_id"]
+        user = self.find_user(users, author_id)
+        metric = tweet["public_metrics"]
+        return TwitterData(text=text_data,
                            date=tweet["created_at"],
                            source=source,
                            source_id=tweet["id"],
-                           input_data=coin_id)
+                           input_data=coin_id,
+                           followers=user["public_metrics"]["followers_count"],
+                           retweet=metric["retweet_count"],
+                           replies=metric["reply_count"],
+                           likes=metric["like_count"],
+                           quotes=metric["quote_count"])
 
     @staticmethod
     def find_user(users, user_id):
@@ -219,7 +200,7 @@ class TwitterJob(object):
             if user["id"] == user_id:
                 return user
 
-    def assign_score(self, input_data, date, sentiment, source):
+    def assign_score(self, input_data, tweet, sentiment, source):
         """
 
         :param input_data:
@@ -230,15 +211,15 @@ class TwitterJob(object):
         """
         sentiment_record = SentimentScore(
             input_data=input_data.id,
+            twitter_data_id = tweet.id,
             sentiment=sentiment["Sentiment"],
             positive=sentiment["SentimentScore"]["Positive"],
             negative=sentiment["SentimentScore"]["Negative"],
             neutral=sentiment["SentimentScore"]["Neutral"],
             mixed=sentiment["SentimentScore"]["Mixed"],
-            date=date,
+            date=tweet.date,
             source=source
 
         )
         db.session.add(sentiment_record)
         db.session.commit()
-

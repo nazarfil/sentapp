@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 from app.database.models import SentimentScore, db, InputData, SentimentHypeScore
 from sqlalchemy.sql import func
 
-from app.log import setup_custom_logger
+import app.log as log
 
-logger = setup_custom_logger("jobs")
+logger = log.def_logger
 
 
 def get_yesterday_data(date, input_data_id):

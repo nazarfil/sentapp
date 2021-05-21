@@ -16,7 +16,7 @@ from app.background.background_task import run_scheduled_tasks
 from flasgger import Swagger
 
 migrate = Migrate()
-logger = log.setup_custom_logger('app')
+logger = log.def_logger
 
 
 def init_app():

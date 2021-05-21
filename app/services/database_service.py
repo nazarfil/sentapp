@@ -1,3 +1,4 @@
+from datetime import time
 from multiprocessing import Process
 
 from sqlalchemy import func
@@ -7,10 +8,13 @@ from app.log import setup_default_logger
 from app.utility.paint import draw_graphs
 from app.database.view import TableView
 from app.database.models import *
+import app.log as log
+
+logger = log.def_logger
 
 
 def create_and_save_scrape_data(input_data, source, text_data, tweet):
-    scraped_data = ScrapedData(text=text_data,
+    scraped_data = TwitterData(text=text_data,
                                date=tweet["created_at"],
                                source=source,
                                input_data=input_data.id)
@@ -25,11 +29,11 @@ def query_input_data_paged():
 def query_input_data(name):
     coin = InputData.query.filter_by(name=name).first()
     table_data = db.session.query(TableView).filter(TableView.name == coin.name).first()
-    return {"coin":coin.serialized, "table_data":table_data.serialized}
+    return {"coin": coin.serialized, "table_data": table_data.serialized}
 
 
 def query_scraped_data_batch(input_data, batch_size):
-    ScrapedData.query.filter_by(input_data=input_data.id).limit(batch_size).all()
+    TwitterData.query.filter_by(input_data=input_data.id).limit(batch_size).all()
 
 
 def query_join_input_and_sentiment_by_name(name):
@@ -122,20 +126,20 @@ def create_financial_record(price=None, market_cap=None, the_date=None, volume=N
         db.session.commit()
 
 
-log = setup_default_logger()
+
 
 
 def get_best_tweets(name, date):
     tweets = []
     tomorrow = datetime.strptime(date, '%Y-%m-%d') + timedelta(days=1)
-    try:
-        coin = db.session.query(InputData).filter_by(name=name).one()
-        best_tweets = db.session.query(func.distinct(ScrapedData.source_id), TwitterDataMetric.followers) \
-            .filter(ScrapedData.input_data == coin.id, ScrapedData.date > date, ScrapedData.date < tomorrow) \
-            .filter(TwitterDataMetric.scraped_data == ScrapedData.id).order_by(
-            TwitterDataMetric.followers.desc()).limit(
-            5).all()
+    coin = db.session.query(InputData).filter_by(name=name).one()
+    print("started query", datetime.now())
+    best_tweets = db.session.query(TwitterData.source_id, TwitterData.followers) \
+        .filter(TwitterData.followers != None).filter(TwitterData.input_data == coin.id, TwitterData.date > date,
+                                                      TwitterData.date < tomorrow).order_by(
+        TwitterData.followers.desc()).limit(5).all()
 
+    try:
         for tweet in best_tweets:
             tweet_metric = {
                 "twitter_id": tweet[0],
@@ -150,11 +154,13 @@ def get_best_tweets(name, date):
 def get_top_6():
     subq_rank = db.session(
         SentimentHypeScore,
-    func.rank().over(
-        order_by=SentimentHypeScore.absolute_hype.desc(),
-        partition_by=SentimentHypeScore.date).label('RANK')
+        func.rank().over(
+            order_by=SentimentHypeScore.absolute_hype.desc(),
+            partition_by=SentimentHypeScore.date).label('RANK')
     ).subquery.all()
-    top_sentiments = query = db.session.query(subq_rank).filter(subq_rank.rank <6)
+    top_sentiments = query = db.session.query(subq_rank).filter(subq_rank.rank < 6)
+
+
 """
 select ranked_scores.date,ranked_scores.input_data, ranked_scores.rank, ranked_scores.absolute_hype from
 (SELECT sentiment_hype_score.*,

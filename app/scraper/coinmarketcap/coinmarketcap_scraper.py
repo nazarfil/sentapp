@@ -9,7 +9,11 @@ import csv
 import datetime
 import cfscrape
 
-logger = log.setup_custom_logger('scraper')
+import app.log as log
+
+logger = log.def_logger
+
+
 def extract(url):
     session = requests.session()
     start = datetime.datetime.now()

@@ -11,8 +11,9 @@ from app.scraper.coingecko.cg_service import CgService
 from app.services.database_service import create_financial_record
 from app.utility.formats import foramt_D_M_Y
 
+
+logger = log.def_logger
 cg = CgService()
-logger = log.setup_custom_logger('services')
 
 
 def populate_price_and_market_cap(start_id):

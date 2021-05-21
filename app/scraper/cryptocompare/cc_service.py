@@ -1,17 +1,17 @@
 from datetime import time
-from os import environ
 from datetime import datetime
 import requests
 from app.config import  Config
-from app import log
+import app.log as log
 
+logger = log.def_logger
 config = Config()
 cc_endpoint = "https://min-api.cryptocompare.com/data/v2/histoday"
 query_price = "?fsym={}&tsym={}&limit={}&toTs={}"
 auth_header = "Apikey"
 auth_header_value = config.CRYPTOCOMPARE_TOKEN
 
-logger = log.setup_custom_logger('scraper')
+
 
 
 def get_historical_data(coin, currency='USD', limit=10, to_date=datetime.now().timestamp()):
