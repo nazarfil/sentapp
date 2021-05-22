@@ -51,14 +51,23 @@ def update_description_of_coin(coin, name):
 
 
 def update_order():
-    tables = db.session.query(TableView).order_by(TableView.absolute_hype.desc()).all()
-    tables2 = db.session.query(TableView).order_by(TableView.market_cap.desc()).all()
+    today = datetime.today().date().strftime(foramt_Y_M_D)
+    today_order = db.session.query(TableView).filter(TableView.date==today)\
+        .order_by(TableView.absolute_hype.desc()).all()
+    old_order = db.session.query(TableView).filter(TableView.date!=today)\
+        .order_by(TableView.absolute_hype.desc()).all()
+    cmc = db.session.query(TableView).order_by(TableView.market_cap.desc()).all()
     coins = InputData.query.all()
     table_dict = {}
-    for i, table in enumerate(tables):
+    for i, table in enumerate(today_order):
         table_dict[table.name] = {"order": i + 1}
-    for i, table in enumerate(tables2):
+
+    for i, table in enumerate(old_order):
+        table_dict[table.name] = {"order": i + 1 +len(today_order)}
+
+    for i, table in enumerate(cmc):
         table_dict[table.name]["mc"] = i + 1
+
     for coin in coins:
         if coin.name in table_dict:
             coin.market_cap_id = table_dict[coin.name]["mc"]

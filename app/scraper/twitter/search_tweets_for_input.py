@@ -53,7 +53,7 @@ def add_name_if_not_common(name):
     name = name.replace(" ", "")
     usable = ["Avalanche", "DENT", "THETA", "TRON", "Terra", "Polygon", "HOLO"]
     common_names = ["Dash", "Maker", "Compound", "Waves", "Neo", "Harmony", "ICON",
-                    "Dai", "Cosmos", "EOS", "UMA", "ICON", "Ontology", "Stacks","Solana","Celsius"]
+                    "Dai", "Cosmos", "EOS", "UMA", "ICON", "Ontology", "Stacks","Solana","Celsius","Stellar"]
 
     if name in common_names:
         return ""

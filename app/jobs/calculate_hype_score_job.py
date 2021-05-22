@@ -90,7 +90,8 @@ def get_score_today_sum(date, input_data_id, tomorrow):
                                                               SentimentScore.date < tomorrow,
                                                               SentimentScore.input_data == input_data_id).count()
         return count_today, sum_mixed.sum, sum_negative.sum, sum_neutral.sum, sum_positive.sum
-    except:
+    except Exception as e:
+        logger.error(e)
         return 0, 0.0, 0.0, 0.0
 
 

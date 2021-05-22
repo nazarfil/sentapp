@@ -9,8 +9,8 @@ from app.algos.sentiment_aws import AwsClient
 
 from app.utility.formats import foramt_Y_M_D
 
-
 import app.log as log
+
 logger = log.def_logger
 
 
@@ -47,15 +47,13 @@ class TwitterJob(object):
         start_date = back_60min.strftime(format_T_H_M_S_ZZ) + 'Z'
         end_date = back_30min.strftime(format_T_H_M_S_ZZ) + 'Z'
         date_str = back_30min.strftime(foramt_Y_M_D)
-
         for coin in coins:
             logger.info("Calculating score for {} ".format(coin.name))
             try:
                 self.calculate_score_for_tweet_range(coin=coin, start_date=start_date, end_date=end_date, called=0)
                 calculate_hype_score(date_str, input_data_id=coin.id)
             except Exception as e:
-                logger.error("Error creating score for coin {}".format(str(coin.name)))
-                logger.error(e)
+                print(e)
 
         create_financial_record_for_coins(coins, date_str)
         update_order()
@@ -87,18 +85,21 @@ class TwitterJob(object):
         :param token: twitter token for next
         :type token: str
         """
-
-        called = called + 1
-        tweets = get_tweets_for_range(coin, start_date, end_date, next_token=token)
-        if tweets is not None and "meta" in tweets:
-            if tweets["meta"]["result_count"] > 0:
-                tweets_records = self.create_scraped_data_records(tweets, coin)
-                for tr in tweets_records:
-                    self.calculate_sentiment_for_tweet(coin, tr)
-                there_is_next_token = "next_token" in tweets["meta"]
-                if there_is_next_token and called < self.MAX_TWEETS:
-                    token = tweets["meta"]["next_token"]
-                    self.calculate_score_for_tweet_range(coin, start_date, end_date, called, token)
+        try:
+            called = called + 1
+            tweets = get_tweets_for_range(coin, start_date, end_date, next_token=token)
+            if tweets is not None and "meta" in tweets:
+                if tweets["meta"]["result_count"] > 0:
+                    tweets_records = self.create_scraped_data_records(tweets, coin)
+                    for tr in tweets_records:
+                        self.calculate_sentiment_for_tweet(coin, tr)
+                    there_is_next_token = "next_token" in tweets["meta"]
+                    if there_is_next_token and called < self.MAX_TWEETS:
+                        token = tweets["meta"]["next_token"]
+                        self.calculate_score_for_tweet_range(coin, start_date, end_date, called, token)
+        except Exception as e:
+            logger.error("Error creating score for coin {}".format(str(coin.name)))
+            logger.error(e)
 
     def calculate_score_for_tweet(self, coin, date, called, token="none"):
         """
@@ -121,8 +122,9 @@ class TwitterJob(object):
                 if there_is_next_token and called < self.MAX_TWEETS_ALL:
                     token = tweets["meta"]["next_token"]
                     self.calculate_score_for_tweet(coin, date, called + 1, token)
-        except:
+        except Exception as e:
             logger.error("No results for " + str(coin.name))
+            logger.error(e)
 
     def create_scraped_data_records(self, tweets, coin):
         """
@@ -212,7 +214,7 @@ class TwitterJob(object):
         """
         sentiment_record = SentimentScore(
             input_data=input_data.id,
-            twitter_data_id = tweet.id,
+            twitter_data_id=tweet.id,
             sentiment=sentiment["Sentiment"],
             positive=sentiment["SentimentScore"]["Positive"],
             negative=sentiment["SentimentScore"]["Negative"],
